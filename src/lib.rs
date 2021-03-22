@@ -1,3 +1,5 @@
+//! Supercharge your Alfred workflows by building them in Rust!
+
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -69,7 +71,7 @@ pub struct Text<'a> {
 }
 
 /// The settings for when a modifier key is pressed.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Hash, Serialize)]
 pub struct ModifierData<'a> {
     /// The subtitle displayed in the result row.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -212,14 +214,32 @@ macro_rules! setter {
     };
 }
 
+impl<'a> ModifierData<'a> {
+    /// Create a new modifier data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use powerpack::ModifierData;
+    /// let data = ModifierData::new();
+    /// ```
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    setter! { subtitle }
+    setter! { arg }
+    setter! { icon, Option<Icon<'a>> }
+    setter! { valid, Option<bool> }
+}
+
 impl<'a> Item<'a> {
     /// Create a new item.
     ///
     /// # Examples
     ///
     /// ```
-    /// use powerpack::Item;
-    ///
+    /// # use powerpack::Item;
     /// let item = Item::new("something");
     /// ```
     pub fn new(title: impl Into<String<'a>>) -> Self {
