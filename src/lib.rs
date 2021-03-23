@@ -1,6 +1,7 @@
 //! Supercharge your Alfred workflows by building them in Rust!
 
 use std::collections::HashMap;
+use std::io;
 use std::path::PathBuf;
 
 use serde::ser::SerializeStruct;
@@ -129,7 +130,7 @@ pub struct Item<'a> {
     kind: Kind,
 
     /// Control how the modifier keys react.
-    #[serde(rename = "mods")]
+    #[serde(rename = "mods", skip_serializing_if = "HashMap::is_empty")]
     modifiers: HashMap<ModifierKey, ModifierData<'a>>,
 
     /// Defines the copied or large type text for this item.
@@ -181,11 +182,11 @@ impl<'a> Icon<'a> {
         Self::Path(path.into())
     }
 
-    pub fn new_file(path: impl Into<PathBuf>) -> Self {
+    pub fn from_file(path: impl Into<PathBuf>) -> Self {
         Self::File(path.into())
     }
 
-    pub fn new_file_type(path: impl Into<String<'a>>) -> Self {
+    pub fn from_file_type(path: impl Into<String<'a>>) -> Self {
         Self::FileType(path.into())
     }
 }
@@ -273,5 +274,9 @@ impl<'a> Output<'a> {
     {
         self.items = iter.into_iter().collect();
         self
+    }
+
+    pub fn write<W: io::Write>(&self, w: W) -> serde_json::Result<()> {
+        serde_json::to_writer(w, self)
     }
 }

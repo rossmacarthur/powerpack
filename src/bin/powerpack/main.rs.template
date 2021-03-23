@@ -1,0 +1,20 @@
+use std::env;
+use std::io;
+
+use anyhow::Result;
+use powerpack::*;
+
+fn main() -> Result<()> {
+    // Alfred passes in a single argument for the user query.
+    let query = env::args().skip(1).next().unwrap_or("".into());
+
+    // Now we create an item to show in the Alfred drop down.
+    let item = Item::new("Hello world!")
+        .subtitle(format!("Your query was '{}'", query))
+        .icon(Icon::from_file_type("public.script"));
+
+    // Output the items to Alfred!
+    Output::default().items(vec![item]).write(io::stdout())?;
+
+    Ok(())
+}
