@@ -3,6 +3,7 @@ mod cargo;
 
 use std::ffi::OsString;
 use std::fs;
+use std::io::prelude::*;
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 
@@ -35,6 +36,7 @@ fn prompt_for_workflow_info(doc: &toml::Document) -> Result<alfred::WorkflowInfo
 fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
     cargo::init(manifest_dir, name)?;
     let doc = cargo::read_manifest(manifest_dir).context("failed to read Cargo manifest")?;
+    let package_name = doc["package"]["name"].as_str().context("expected string")?;
 
     // Write the info.plist file
     let info = prompt_for_workflow_info(&doc)?;
@@ -42,6 +44,15 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
     let workflow_dir = manifest_dir.join("workflow");
     fs::create_dir_all(&workflow_dir)?;
     info.to_file_xml(workflow_dir.join("info.plist"))?;
+
+    // Add workflow/<binary> to the gitignore file (if it exists)
+    if let Ok(mut file) = fs::OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(manifest_dir.join(".gitignore"))
+    {
+        writeln!(file, "/workflow/{}", package_name)?;
+    }
 
     // Add dependencies to Cargo manifest.
     {
