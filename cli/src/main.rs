@@ -1,36 +1,82 @@
+mod alfred;
 mod cargo;
 
 use std::fs;
-use std::io;
 use std::path::{Path, PathBuf};
-use std::str::FromStr;
 
+use anyhow::{Context, Result};
 use clap::{AppSettings, Clap};
+use toml_edit as toml;
 
-fn update_cargo_manifest(manifest_dir: &Path) -> anyhow::Result<()> {
-    use toml_edit::{Document, Item::Value};
+fn prompt_for_workflow_info(doc: &toml::Document) -> Result<alfred::WorkflowInfo> {
+    let package_name = doc["package"]["name"].as_str().context("expected string")?;
 
-    let manifest_path = manifest_dir.join("Cargo.toml");
-    let contents = fs::read_to_string(&manifest_path)?;
-    let mut doc = Document::from_str(&contents)?;
-    let table = &mut doc["dependencies"];
-    table["anyhow"] = Value("1.0".into());
-    table["powerpack"] = Value(env!("CARGO_PKG_VERSION").into());
-    fs::write(&manifest_path, &doc.to_string_in_original_order())?;
+    let author = doc["package"]["authors"][0]
+        .as_str()
+        .context("expected string")?;
+    let author = match author.find(" <") {
+        Some(i) => &author[i..],
+        None => author,
+    };
+
+    Ok(alfred::WorkflowInfo {
+        name: package_name.to_owned(),
+        bin_name: package_name.to_owned(),
+        bundle_id: casual::prompt("Enter the workflow bundle ID: ").get(),
+        author: author.to_owned(),
+        description: casual::prompt("Enter the workflow description: ").get(),
+        keyword: casual::prompt("Enter the workflow keyword: ").get(),
+    })
+}
+
+/// Create a new Alfred workflow in the given directory.
+fn init(manifest_dir: &Path) -> Result<()> {
+    cargo::init(manifest_dir)?;
+    let doc = cargo::read_manifest(manifest_dir)?;
+
+    // Write the info.plist file
+    let info = prompt_for_workflow_info(&doc)?;
+    let info = alfred::build_info_plist(&info);
+    let workflow_dir = manifest_dir.join("workflow");
+    fs::create_dir_all(&workflow_dir)?;
+    info.to_file_xml(workflow_dir.join("info.plist"))?;
+
+    // Add dependencies to Cargo manifest.
+    {
+        let mut doc = doc;
+        let table = &mut doc["dependencies"];
+        table["anyhow"] = toml::value("1.0");
+        table["powerpack"] = toml::value(env!("CARGO_PKG_VERSION"));
+        cargo::write_manifest(manifest_dir, &doc)?;
+    }
+
+    // Write our custom `main.rs`
+    let main = manifest_dir.join("src").join("main.rs");
+    fs::write(main, include_str!("main.rs.template"))?;
+
     Ok(())
 }
 
-fn write_main(manifest_dir: &Path) -> io::Result<()> {
-    let path = manifest_dir.join("src").join("main.rs");
-    fs::write(path, include_str!("main.rs.template"))
+/// Build the workflow.
+fn build() -> Result<()> {
+    cargo::build()?;
+    let workspace_dir = cargo::workspace_directory()?;
+    let target_dir = cargo::target_directory()?;
+    let binary_name = cargo::binary_name()?;
+    fs::create_dir_all(workspace_dir.join("workflow"))?;
+    fs::copy(
+        target_dir.join("release").join(&binary_name),
+        workspace_dir.join("workflow").join(&binary_name),
+    )?;
+    Ok(())
 }
 
 #[derive(Debug, Clap)]
 enum Command {
     /// Create a new Rust alfred workflow.
     New { path: PathBuf },
-    /// Create a new Rust alfred workflow in an existing directory.
-    Init,
+    /// Create a new Rust alfred workflow in an existing directory [default: .]
+    Init { path: Option<PathBuf> },
     /// Build the workflow.
     Build,
 }
@@ -54,25 +100,18 @@ fn main() -> anyhow::Result<()> {
     let Opt { command } = Opt::parse();
     match command {
         Command::New { path } => {
-            cargo::new(&path)?;
-            write_main(&path)?;
-            update_cargo_manifest(&path)?;
+            fs::create_dir_all(&path)?;
+            init(&path)?;
         }
-        Command::Init => {
-            cargo::init()?;
-            write_main(".".as_ref())?;
-            update_cargo_manifest(".".as_ref())?;
+        Command::Init { path } => {
+            let path = path
+                .as_ref()
+                .map(PathBuf::as_path)
+                .unwrap_or(Path::new("."));
+            init(path)?;
         }
         Command::Build => {
-            cargo::build()?;
-            let workspace_dir = cargo::workspace_directory()?;
-            let target_dir = cargo::target_directory()?;
-            let binary_name = cargo::binary_name()?;
-            fs::create_dir_all(workspace_dir.join("workflow"))?;
-            fs::copy(
-                target_dir.join("release").join(&binary_name),
-                workspace_dir.join("workflow").join(&binary_name),
-            )?;
+            build()?;
         }
     }
     Ok(())

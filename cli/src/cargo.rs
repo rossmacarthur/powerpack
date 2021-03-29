@@ -1,9 +1,12 @@
 use std::ffi::OsStr;
-use std::path::PathBuf;
+use std::fs;
+use std::path::{Path, PathBuf};
 use std::process;
+use std::str::FromStr;
 
 use anyhow::{bail, Context, Result};
 pub use cargo_metadata as metadata;
+use toml_edit as toml;
 
 #[derive(Debug)]
 pub struct Cargo {
@@ -32,14 +35,9 @@ impl Cargo {
     }
 }
 
-/// Run a `cargo new` command.
-pub fn new<P: AsRef<OsStr>>(path: P) -> Result<()> {
-    Cargo::new("new").arg("--bin").arg(path).run()
-}
-
 /// Run a `cargo init` command.
-pub fn init() -> Result<()> {
-    Cargo::new("init").arg("--bin").run()
+pub fn init<P: AsRef<OsStr>>(path: P) -> Result<()> {
+    Cargo::new("init").arg("--bin").arg(path).run()
 }
 
 /// Run a `cargo build` command.
@@ -71,4 +69,19 @@ pub fn workspace_directory() -> Result<PathBuf> {
 pub fn target_directory() -> Result<PathBuf> {
     let metadata = metadata::MetadataCommand::new().exec()?;
     Ok(metadata.target_directory.into())
+}
+
+/// Read the Cargo manifest.
+pub fn read_manifest(dir: &Path) -> Result<toml::Document> {
+    let manifest_path = dir.join("Cargo.toml");
+    let contents = fs::read_to_string(&manifest_path)?;
+    let doc = toml::Document::from_str(&contents)?;
+    Ok(doc)
+}
+
+/// Write a Cargo manifest.
+pub fn write_manifest(dir: &Path, doc: &toml::Document) -> Result<()> {
+    let path = dir.join("Cargo.toml");
+    fs::write(&path, &doc.to_string_in_original_order())?;
+    Ok(())
 }

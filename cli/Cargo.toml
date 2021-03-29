@@ -9,8 +9,12 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 anyhow = "1.0.39"
 cargo_metadata = "0.13.1"
+casual = "0.2.0"
 clap = "3.0.0-beta.2"
+indexmap = "1.6.2"
+plist = "1.1.0"
 toml_edit = "0.2.0"
+uuid = { version = "0.8.2", features = ["v4"] }
 
 [[bin]]
 name = "powerpack"
