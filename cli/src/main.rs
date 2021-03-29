@@ -1,6 +1,7 @@
 mod alfred;
 mod cargo;
 
+use std::ffi::OsString;
 use std::fs;
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
@@ -16,7 +17,7 @@ fn prompt_for_workflow_info(doc: &toml::Document) -> Result<alfred::WorkflowInfo
         .as_str()
         .context("expected string")?;
     let author = match author.find(" <") {
-        Some(i) => &author[i..],
+        Some(i) => &author[..i],
         None => author,
     };
 
@@ -31,9 +32,9 @@ fn prompt_for_workflow_info(doc: &toml::Document) -> Result<alfred::WorkflowInfo
 }
 
 /// Create a new Alfred workflow in the given directory.
-fn init(manifest_dir: &Path) -> Result<()> {
-    cargo::init(manifest_dir)?;
-    let doc = cargo::read_manifest(manifest_dir)?;
+fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
+    cargo::init(manifest_dir, name)?;
+    let doc = cargo::read_manifest(manifest_dir).context("failed to read Cargo manifest")?;
 
     // Write the info.plist file
     let info = prompt_for_workflow_info(&doc)?;
@@ -101,9 +102,17 @@ fn link() -> Result<()> {
 #[derive(Debug, Clap)]
 enum Command {
     /// Create a new Rust alfred workflow.
-    New { path: PathBuf },
+    New {
+        path: PathBuf,
+        #[clap(long)]
+        name: Option<OsString>,
+    },
     /// Create a new Rust alfred workflow in an existing directory [default: .]
-    Init { path: Option<PathBuf> },
+    Init {
+        path: Option<PathBuf>,
+        #[clap(long)]
+        name: Option<OsString>,
+    },
     /// Build the workflow.
     Build,
     /// Symlink the workflow directory to the Alfred workflow directory.
@@ -128,13 +137,13 @@ struct Opt {
 fn main() -> anyhow::Result<()> {
     let Opt { command } = Opt::parse();
     match command {
-        Command::New { path } => {
+        Command::New { path, name } => {
             fs::create_dir_all(&path)?;
-            init(&path)?;
+            init(&path, name)?;
         }
-        Command::Init { path } => {
+        Command::Init { path, name } => {
             let path = path.as_deref().unwrap_or_else(|| Path::new("."));
-            init(path)?;
+            init(path, name)?;
         }
         Command::Build => {
             build()?;

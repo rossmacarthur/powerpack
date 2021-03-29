@@ -14,14 +14,13 @@ pub struct Cargo {
 }
 
 impl Cargo {
-    fn new<S: AsRef<OsStr>>(cmd: S) -> Self {
-        Self {
-            cmd: process::Command::new("cargo"),
-        }
-        .arg(cmd)
+    fn new<S: AsRef<OsStr>>(subcmd: S) -> Self {
+        let mut cmd = process::Command::new("cargo");
+        cmd.arg(subcmd);
+        Self { cmd }
     }
 
-    fn arg<S: AsRef<OsStr>>(mut self, arg: S) -> Self {
+    fn arg<S: AsRef<OsStr>>(&mut self, arg: S) -> &mut Self {
         self.cmd.arg(arg);
         self
     }
@@ -36,8 +35,17 @@ impl Cargo {
 }
 
 /// Run a `cargo init` command.
-pub fn init<P: AsRef<OsStr>>(path: P) -> Result<()> {
-    Cargo::new("init").arg("--bin").arg(path).run()
+pub fn init<P, N>(path: P, name: Option<N>) -> Result<()>
+where
+    P: AsRef<OsStr>,
+    N: AsRef<OsStr>,
+{
+    let mut cmd = Cargo::new("init");
+    if let Some(name) = name {
+        cmd.arg("--name").arg(name);
+    }
+    cmd.arg("--bin").arg(path);
+    cmd.run()
 }
 
 /// Run a `cargo build` command.
