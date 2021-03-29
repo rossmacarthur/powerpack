@@ -31,6 +31,8 @@ enum Command {
     New { path: PathBuf },
     /// Create a new Rust alfred workflow in an existing directory.
     Init,
+    /// Build the workflow.
+    Build,
 }
 
 #[derive(Debug, Clap)]
@@ -52,14 +54,25 @@ fn main() -> anyhow::Result<()> {
     let Opt { command } = Opt::parse();
     match command {
         Command::New { path } => {
-            cargo::new(&path).run()?;
+            cargo::new(&path)?;
             write_main(&path)?;
             update_cargo_manifest(&path)?;
         }
         Command::Init => {
-            cargo::init().run()?;
+            cargo::init()?;
             write_main(".".as_ref())?;
             update_cargo_manifest(".".as_ref())?;
+        }
+        Command::Build => {
+            cargo::build()?;
+            let workspace_dir = cargo::target_directory()?;
+            let target_dir = cargo::target_directory()?;
+            let binary_name = cargo::binary_name()?;
+            fs::create_dir_all(workspace.join("workflow"))?;
+            fs::copy(
+                target_dir.join("release").join(&binary_name),
+                workspace_dir.join("workflow").join(&binary_name),
+            )?;
         }
     }
     Ok(())
