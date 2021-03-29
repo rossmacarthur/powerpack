@@ -1,4 +1,8 @@
+use std::path::PathBuf;
+
 use indexmap::indexmap;
+
+use anyhow::{Context, Result};
 
 pub struct WorkflowInfo {
     pub bundle_id: String,
@@ -76,4 +80,30 @@ pub fn build_info_plist(info: &WorkflowInfo) -> plist::Value {
             }
         ]
     }
+}
+
+fn sync_directory() -> Result<PathBuf> {
+    let home = home::home_dir().context("failed to get home directory")?;
+    let prefs = home.join("Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist");
+    let prefs = plist::Value::from_file(&prefs)?;
+    let dir = match prefs
+        .into_dictionary()
+        .context("expected dictionary")?
+        .remove("syncfolder")
+    {
+        Some(dir) => {
+            let dir = PathBuf::from(dir.into_string().context("expected string")?);
+            if let Ok(p) = dir.strip_prefix("~") {
+                home.join(p)
+            } else {
+                dir
+            }
+        }
+        None => home.join("Library/Application Support/Alfred"),
+    };
+    Ok(dir)
+}
+
+pub fn workflows_directory() -> Result<PathBuf> {
+    Ok(sync_directory()?.join("Alfred.alfredpreferences/workflows"))
 }

@@ -2,6 +2,7 @@ mod alfred;
 mod cargo;
 
 use std::fs;
+use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
@@ -71,6 +72,32 @@ fn build() -> Result<()> {
     Ok(())
 }
 
+fn find_link(workflow_dir: &Path, workflows_dir: &Path) -> Result<Option<PathBuf>> {
+    for entry in fs::read_dir(&workflows_dir)?
+        .collect::<Result<Vec<_>, _>>()?
+        .into_iter()
+        .filter(|entry| entry.file_type().unwrap().is_symlink())
+    {
+        let path = entry.path();
+        if path.read_link()? == workflow_dir {
+            return Ok(Some(path));
+        }
+    }
+    Ok(None)
+}
+
+/// Link the workflow.
+fn link() -> Result<()> {
+    let workflow_dir = cargo::workspace_directory()?.join("workflow");
+    let workflows_dir = alfred::workflows_directory()?;
+    if find_link(&workflow_dir, &workflows_dir)?.is_none() {
+        let uid = uuid::Uuid::new_v4().to_string().to_uppercase();
+        let dst = workflows_dir.join(&format!("user.workflow.{}", uid));
+        symlink(workflow_dir, dst)?;
+    }
+    Ok(())
+}
+
 #[derive(Debug, Clap)]
 enum Command {
     /// Create a new Rust alfred workflow.
@@ -79,6 +106,8 @@ enum Command {
     Init { path: Option<PathBuf> },
     /// Build the workflow.
     Build,
+    /// Symlink the workflow directory to the Alfred workflow directory.
+    Link,
 }
 
 #[derive(Debug, Clap)]
@@ -104,14 +133,14 @@ fn main() -> anyhow::Result<()> {
             init(&path)?;
         }
         Command::Init { path } => {
-            let path = path
-                .as_ref()
-                .map(PathBuf::as_path)
-                .unwrap_or(Path::new("."));
+            let path = path.as_deref().unwrap_or_else(|| Path::new("."));
             init(path)?;
         }
         Command::Build => {
             build()?;
+        }
+        Command::Link => {
+            link()?;
         }
     }
     Ok(())
