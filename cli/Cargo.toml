@@ -1,0 +1,17 @@
+[package]
+name = "powerpack-cli"
+version = "0.0.0"
+authors = ["Ross MacArthur <ross@macarthur.io>"]
+edition = "2018"
+readme = "../README.md"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+anyhow = "1.0.39"
+cargo_metadata = "0.13.1"
+clap = "3.0.0-beta.2"
+toml_edit = "0.2.0"
+
+[[bin]]
+name = "powerpack"
+path = "src/main.rs"

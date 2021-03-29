@@ -64,7 +64,7 @@ pub fn binary_name() -> Result<String> {
 /// Get the workspace directory.
 pub fn workspace_directory() -> Result<PathBuf> {
     let metadata = metadata::MetadataCommand::new().exec()?;
-    Ok(metadata.workspace_directory.into())
+    Ok(metadata.workspace_root.into())
 }
 
 /// Get the target directory.

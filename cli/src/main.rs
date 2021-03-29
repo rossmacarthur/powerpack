@@ -65,10 +65,10 @@ fn main() -> anyhow::Result<()> {
         }
         Command::Build => {
             cargo::build()?;
-            let workspace_dir = cargo::target_directory()?;
+            let workspace_dir = cargo::workspace_directory()?;
             let target_dir = cargo::target_directory()?;
             let binary_name = cargo::binary_name()?;
-            fs::create_dir_all(workspace.join("workflow"))?;
+            fs::create_dir_all(workspace_dir.join("workflow"))?;
             fs::copy(
                 target_dir.join("release").join(&binary_name),
                 workspace_dir.join("workflow").join(&binary_name),
