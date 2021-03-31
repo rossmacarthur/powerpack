@@ -1,6 +1,8 @@
 # 🎩 powerpack
 
-Supercharge your Alfred workflows by building them in Rust 🦀!
+Supercharge your [Alfred] workflows by building them in Rust 🦀!
+
+[Alfred]: https://www.alfredapp.com
 
 ## 🚀 Getting started
 

@@ -1,10 +1,14 @@
 [package]
 name = "powerpack"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Ross MacArthur <ross@macarthur.io>"]
 edition = "2018"
+description = "🎩 Supercharge your Alfred workflows by building them in Rust!"
 readme = "README.md"
+repository = "https://github.com/rossmacarthur/powerpack"
 license = "MIT OR Apache-2.0"
+keywords = ["alfred", "workflow"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 beef = { version = "0.5", features = ["impl_serde"] }
