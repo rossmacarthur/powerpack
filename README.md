@@ -1,4 +1,35 @@
-# powerpack
+# 🎩 powerpack
+
+Supercharge your Alfred workflows by building them in Rust 🦀!
+
+## 🚀 Getting started
+
+This project contains a `powerpack` crate which provides types for developing
+script filter Alfred workflows in Rust. It also provides a command line tool to
+initialize, build, and install  workflows built using the `powerpack` crate.
+
+Firstly, install the command line tool.
+```sh
+cargo install powerpack-cli
+```
+
+Now create a new project using a similar API as `cargo new` or `cargo init`.
+```sh
+powerpack new myworkflow
+```
+
+This will create a new Rust project as well as a `workflow/` directory
+containing information about your Alfred workflow. The following will create
+a release build of the workflow and copy it to the `workflow/` directory.
+```sh
+powerpack build
+```
+
+Now you can link it. The following will symlink the `workflow/` directory to
+the Alfred preferences folder.
+```sh
+powerpack link
+```
 
 ## License
 

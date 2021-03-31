@@ -1,4 +1,34 @@
-//! Supercharge your Alfred workflows by building them in Rust!
+//! 🎩 Supercharge your Alfred workflows by building them in Rust!
+//!
+//! # Introduction
+//!
+//! This crate provides types for developing script filter Alfred workflows in
+//! Rust. Additionally, this project includes the `powerpack-cli` crate which
+//! contains a command-line tool to help build and install your workflows.
+//!
+//! Types in this crate closely mirror the script filter JSON format. View the
+//! official documentation for that [here][fmt].
+//!
+//! [fmt]: https://www.alfredapp.com/help/workflows/inputs/script-filter/json/
+//!
+//! # Examples
+//!
+//! Each row in an Alfred script filter result is represented by an [`Item`]. A
+//! workflow must output a sequence of items to stdout using the [`output()`]
+//! function.
+//!
+//! ```
+//! use std::iter;
+//!
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let item = powerpack::Item::new("Example title")
+//!     .subtitle("example subtitle")
+//!     .arg("example");
+//!
+//! powerpack::output(iter::once(item))?;
+//! # Ok(())
+//! # }
+//! ```
 
 use std::collections::HashMap;
 use std::io;
@@ -279,4 +309,12 @@ impl<'a> Output<'a> {
     pub fn write<W: io::Write>(&self, w: W) -> serde_json::Result<()> {
         serde_json::to_writer(w, self)
     }
+}
+
+/// Shortcut function to output a list of items to stdout.
+pub fn output<'a, I>(items: I) -> serde_json::Result<()>
+where
+    I: IntoIterator<Item = Item<'a>>,
+{
+    Output::default().items(items).write(io::stdout())
 }
