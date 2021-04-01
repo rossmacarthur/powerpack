@@ -1,4 +1,4 @@
-# 🎩 powerpack
+# 🎩⚡ powerpack
 
 Supercharge your [Alfred] workflows by building them in Rust 🦀!
 
@@ -32,6 +32,17 @@ the Alfred preferences folder.
 ```sh
 powerpack link
 ```
+
+To package a `.alfredworkflow` file for release you can run the following.
+```sh
+powerpack package
+```
+
+## 💡 Examples
+
+The following projects are built using `powerpack`.
+
+- [emojis.alfred-workflow](https://github.com/rossmacarthur/emojis.alfred-workflow)
 
 ## License
 

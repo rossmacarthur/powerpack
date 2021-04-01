@@ -1,4 +1,4 @@
-//! 🎩 Supercharge your Alfred workflows by building them in Rust!
+//! 🎩⚡ Supercharge your Alfred workflows by building them in Rust!
 //!
 //! # Introduction
 //!
