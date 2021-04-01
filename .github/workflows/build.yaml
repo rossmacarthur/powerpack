@@ -1,0 +1,32 @@
+name: build
+
+on: [push, pull_request]
+
+env:
+  RUSTFLAGS: --deny warnings
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        toolchain: [stable, beta, nightly]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.toolchain }}
+        components: rustfmt, clippy
+        override: true
+
+    - name: Rustfmt
+      run: cargo fmt -- --check
+
+    - name: Clippy
+      run: cargo clippy --workspace --all-targets
+
+    - name: Test
+      run: cargo test --workspace
