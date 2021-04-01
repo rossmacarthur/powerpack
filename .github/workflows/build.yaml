@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 env:
   RUSTFLAGS: --deny warnings
+  CRATE: powerpack
 
 jobs:
   build:
@@ -30,3 +31,84 @@ jobs:
 
     - name: Test
       run: cargo test --workspace
+
+  check-version:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Calculate version from tag
+        id: version
+        run: echo "::set-output name=value::${GITHUB_REF#refs/tags/}"
+
+      - name: Check tag against package versions
+        run: |
+          grep '^version = "${{ steps.version.outputs.value }}"$' Cargo.toml
+          grep '^version = "${{ steps.version.outputs.value }}"$' cli/Cargo.toml
+
+  publish:
+    needs: check-version
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+
+    - name: Publish
+      env:
+        CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+      run: |
+        cargo publish
+        cargo publish --manifest-path cli/Cargo.toml
+
+  release:
+    needs: check-version
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Calculate version from tag
+        id: version
+        run: echo "::set-output name=value::${GITHUB_REF#refs/tags/}"
+
+      - name: Build
+        run: cargo build --package powerpack-cli --locked --release
+
+      - name: Strip binary
+        run: strip target/release/$CRATE
+
+      - name: Archive
+        id: archive
+        run: |
+          mkdir release
+          archive=$CRATE-${{ steps.version.outputs.value }}-x86_64-apple-darwin.tar.gz
+          cp target/release/$CRATE release/$CRATE
+          cp LICENSE* release
+          cp README.md release
+          cd release
+          tar cfz "../$archive" -- *
+          cd ..
+          rm -r release
+          echo "::set-output name=path::$archive"
+
+      - uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: ${{ steps.archive.outputs.path }}
