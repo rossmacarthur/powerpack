@@ -24,6 +24,9 @@ toml_edit = "0.2.0"
 uuid = { version = "0.8.2", features = ["v4"] }
 zip = { version = "0.5.11", features = ["deflate-zlib", "time"], default-features = false }
 
+[dev-dependencies]
+powerpack = { path = ".." }
+
 [[bin]]
 name = "powerpack"
 path = "src/main.rs"

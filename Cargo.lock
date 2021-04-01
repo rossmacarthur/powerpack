@@ -412,6 +412,7 @@ dependencies = [
  "indexmap",
  "peter",
  "plist",
+ "powerpack",
  "toml_edit",
  "uuid",
  "zip",
