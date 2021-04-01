@@ -13,6 +13,12 @@ pub struct Cargo {
     cmd: process::Command,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum Mode {
+    Debug,
+    Release,
+}
+
 impl Cargo {
     fn new<S: AsRef<OsStr>>(subcmd: S) -> Self {
         let mut cmd = process::Command::new("cargo");
@@ -34,6 +40,15 @@ impl Cargo {
     }
 }
 
+impl Mode {
+    pub fn dir(&self) -> &Path {
+        Path::new(match self {
+            Self::Debug => "debug",
+            Self::Release => "release",
+        })
+    }
+}
+
 /// Run a `cargo init` command.
 pub fn init<P, N>(path: P, name: Option<N>) -> Result<()>
 where
@@ -49,8 +64,12 @@ where
 }
 
 /// Run a `cargo build` command.
-pub fn build() -> Result<()> {
-    Cargo::new("build").arg("--release").run()
+pub fn build(mode: Mode) -> Result<()> {
+    let mut cmd = Cargo::new("build");
+    if let Mode::Release = mode {
+        cmd.arg("--release");
+    }
+    cmd.run()
 }
 
 /// Get the release binary path.

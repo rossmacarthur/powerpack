@@ -1,4 +1,7 @@
-use std::path::PathBuf;
+use std::fs;
+use std::io::prelude::*;
+use std::os::unix::fs::PermissionsExt;
+use std::path::{Path, PathBuf};
 
 use indexmap::indexmap;
 
@@ -106,4 +109,28 @@ fn sync_directory() -> Result<PathBuf> {
 
 pub fn workflows_directory() -> Result<PathBuf> {
     Ok(sync_directory()?.join("Alfred.alfredpreferences/workflows"))
+}
+
+pub fn package(src_dir: &Path, dst: &Path) -> Result<()> {
+    let file = fs::File::create(&dst)?;
+    let mut zip = zip::ZipWriter::new(file);
+
+    for entry in src_dir.read_dir()? {
+        let entry = entry?;
+        let path = entry.path();
+        let name = path.strip_prefix(src_dir).unwrap().to_str().unwrap();
+
+        // preserve file permissions
+        let mode = path.metadata()?.permissions().mode();
+        let options = zip::write::FileOptions::default().unix_permissions(mode);
+
+        if path.is_file() {
+            zip.start_file(name, options)?;
+            zip.write_all(&fs::read(path)?)?;
+        } else {
+            zip.add_directory(name, options)?;
+        }
+    }
+    zip.finish()?;
+    Ok(())
 }

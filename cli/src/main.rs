@@ -1,6 +1,7 @@
 mod alfred;
 mod cargo;
 
+use std::env;
 use std::ffi::OsString;
 use std::fs;
 use std::io::prelude::*;
@@ -9,7 +10,16 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
 use clap::{AppSettings, Clap};
+use peter::Stylize;
 use toml_edit as toml;
+
+fn print(header: &str, message: &str) {
+    if atty::is(atty::Stream::Stdout) {
+        println!("{:>12} {}", header.bold().green(), message);
+    } else {
+        println!("{:>12} {}", header, message);
+    }
+}
 
 fn prompt_for_workflow_info(doc: &toml::Document) -> Result<alfred::WorkflowInfo> {
     let package_name = doc["package"]["name"].as_str().context("expected string")?;
@@ -71,16 +81,31 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
 }
 
 /// Build the workflow.
-fn build() -> Result<()> {
-    cargo::build()?;
+fn build(release: bool) -> Result<()> {
+    let mode = if release {
+        cargo::Mode::Release
+    } else {
+        cargo::Mode::Debug
+    };
+    cargo::build(mode)?;
+
     let workspace_dir = cargo::workspace_directory()?;
     let target_dir = cargo::target_directory()?;
     let binary_name = cargo::binary_name()?;
     fs::create_dir_all(workspace_dir.join("workflow"))?;
-    fs::copy(
-        target_dir.join("release").join(&binary_name),
-        workspace_dir.join("workflow").join(&binary_name),
-    )?;
+
+    let src = target_dir.join(mode.dir()).join(&binary_name);
+    let dst = workspace_dir.join("workflow").join(&binary_name);
+    fs::copy(&src, &dst)?;
+
+    print(
+        "Copied",
+        &format!(
+            "binary to `{}`",
+            dst.strip_prefix(env::current_dir()?)?.display()
+        ),
+    );
+
     Ok(())
 }
 
@@ -102,11 +127,50 @@ fn find_link(workflow_dir: &Path, workflows_dir: &Path) -> Result<Option<PathBuf
 fn link() -> Result<()> {
     let workflow_dir = cargo::workspace_directory()?.join("workflow");
     let workflows_dir = alfred::workflows_directory()?;
-    if find_link(&workflow_dir, &workflows_dir)?.is_none() {
-        let uid = uuid::Uuid::new_v4().to_string().to_uppercase();
-        let dst = workflows_dir.join(&format!("user.workflow.{}", uid));
-        symlink(workflow_dir, dst)?;
+
+    match find_link(&workflow_dir, &workflows_dir)? {
+        Some(exists) => {
+            print(
+                "Symlinked",
+                &format!("workflow directory to `{}`", exists.display()),
+            );
+        }
+        None => {
+            let uid = uuid::Uuid::new_v4().to_string().to_uppercase();
+            let dst = workflows_dir.join(&format!("user.workflow.{}", uid));
+            symlink(&workflow_dir, &dst)?;
+            print(
+                "Symlinked",
+                &format!("workflow directory to `{}`", dst.display()),
+            );
+        }
     }
+    Ok(())
+}
+
+/// Package the workflow into a `.alfred-workflow` file.
+fn package() -> Result<()> {
+    let workflow_dir = cargo::workspace_directory()?.join("workflow");
+    let dist_dir = cargo::target_directory()?.join("workflow");
+    let mut binary_name = cargo::binary_name()?;
+
+    // Just a hack because I tend to suffix my workflows with this.
+    if let Some(new) = binary_name.strip_suffix("-alfred-workflow") {
+        binary_name = new.to_owned();
+    }
+
+    let dst = &dist_dir.join(binary_name).with_extension("alfredworkflow");
+
+    fs::create_dir_all(&dist_dir)?;
+    alfred::package(&workflow_dir, dst)?;
+    print(
+        "Packaged",
+        &format!(
+            "workflow at `{}`",
+            dst.strip_prefix(env::current_dir()?)?.display()
+        ),
+    );
+
     Ok(())
 }
 
@@ -125,9 +189,14 @@ enum Command {
         name: Option<OsString>,
     },
     /// Build the workflow.
-    Build,
+    Build {
+        #[clap(long)]
+        release: bool,
+    },
     /// Symlink the workflow directory to the Alfred workflow directory.
     Link,
+    /// Package the workflow as an `.alfred-workflow` file.
+    Package,
 }
 
 #[derive(Debug, Clap)]
@@ -156,11 +225,15 @@ fn main() -> anyhow::Result<()> {
             let path = path.as_deref().unwrap_or_else(|| Path::new("."));
             init(path, name)?;
         }
-        Command::Build => {
-            build()?;
+        Command::Build { release } => {
+            build(release)?;
         }
         Command::Link => {
             link()?;
+        }
+        Command::Package => {
+            build(true)?;
+            package()?;
         }
     }
     Ok(())

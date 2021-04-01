@@ -12,14 +12,17 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 anyhow = "1.0.39"
+atty = "0.2.14"
 cargo_metadata = "0.13.1"
 casual = "0.2.0"
 clap = "3.0.0-beta.2"
 home = "0.5.3"
 indexmap = "1.6.2"
+peter = "0.2.1"
 plist = "1.1.0"
 toml_edit = "0.2.0"
 uuid = { version = "0.8.2", features = ["v4"] }
+zip = { version = "0.5.11", features = ["deflate-zlib", "time"], default-features = false }
 
 [[bin]]
 name = "powerpack"
