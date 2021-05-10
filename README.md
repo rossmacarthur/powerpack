@@ -1,12 +1,12 @@
-# 🎩⚡ powerpack
+# ⚡ powerpack
 
 [![Crates.io Version](https://img.shields.io/crates/v/powerpack.svg)](https://crates.io/crates/powerpack)
 [![Docs.rs Latest](https://img.shields.io/badge/docs.rs-latest-blue.svg)](https://docs.rs/powerpack)
 [![Build Status](https://img.shields.io/github/workflow/status/rossmacarthur/powerpack/build/trunk)](https://github.com/rossmacarthur/powerpack/actions?query=workflow%3Abuild)
 
-Supercharge your [Alfred] workflows by building them in Rust 🦀!
+Supercharge your [Alfred 🎩][alfred] workflows by building them in Rust 🦀!
 
-[Alfred]: https://www.alfredapp.com
+[alfred]: https://www.alfredapp.com
 
 ## 🚀 Getting started
 
@@ -28,7 +28,7 @@ This will create a new Rust project as well as a `workflow/` directory
 containing information about your Alfred workflow. The following will create
 a release build of the workflow and copy it to the `workflow/` directory.
 ```sh
-powerpack build
+powerpack build --release
 ```
 
 Now you can link it. The following will symlink the `workflow/` directory to
@@ -42,11 +42,26 @@ To package a `.alfredworkflow` file for release you can run the following.
 powerpack package
 ```
 
+## GitHub Action
+
+[`setup-powerpack`][setup] can be used to install `powerpack` in a GitHub
+Actions workflow. For example:
+```yaml
+steps:
+  - uses: actions/checkout@v2
+  - uses: extractions/setup-powerpack@v1
+  - run: powerpack package
+  # produces an artifact at `target/workflow/{name}.alfredworkflow`
+```
+
+[setup]: https://github.com/extractions/setup-powerpack
+
 ## 💡 Examples
 
 The following projects are built using `powerpack`.
 
-- [emojis.alfred-workflow](https://github.com/rossmacarthur/emojis.alfred-workflow)
+- [crates.alfredworkflow](https://github.com/rossmacarthur/crates.alfredworkflow)
+- [emojis.alfredworkflow](https://github.com/rossmacarthur/emojis.alfredworkflow)
 
 ## License
 
