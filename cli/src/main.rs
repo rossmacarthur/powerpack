@@ -199,7 +199,7 @@ enum Command {
     },
     /// Symlink the workflow directory to the Alfred workflow directory.
     Link,
-    /// Package the workflow as an `.alfred-workflow` file.
+    /// Package the workflow as an `.alfredworkflow` file.
     Package,
 }
 
