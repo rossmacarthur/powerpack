@@ -2,6 +2,6 @@
 fn main_template() {
     #[allow(dead_code)]
     mod main {
-        include!("../src/main.rs.template");
+        include!("../src/main.template.rs");
     }
 }

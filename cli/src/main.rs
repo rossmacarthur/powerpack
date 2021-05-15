@@ -68,11 +68,9 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
     {
         let mut doc = doc;
         let table = &mut doc["dependencies"];
-        table["anyhow"] = toml::value("1.0");
         table["powerpack"] = toml::value(env!("CARGO_PKG_VERSION"));
         cargo::write_manifest(manifest_dir, &doc)?;
     }
-    print("Added", "anyhow v1.0 to dependencies");
     print(
         "Added",
         &format!("powerpack v{} to dependencies", env!("CARGO_PKG_VERSION")),
@@ -80,7 +78,7 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
 
     // Write our custom `main.rs`
     let main = manifest_dir.join("src").join("main.rs");
-    fs::write(main, include_str!("main.rs.template"))?;
+    fs::write(main, include_str!("main.template.rs"))?;
     print("Finished", "created example script filter workflow");
 
     Ok(())
