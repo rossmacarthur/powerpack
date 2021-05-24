@@ -75,16 +75,21 @@ pub enum ModifierKey {
     Function,
 }
 
-/// An icon displayed in the result row.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum Icon<'a> {
+enum IconInner<'a> {
     /// Load an image from a path.
-    Path(PathBuf),
-    /// Extract the icon from a file.
-    File(PathBuf),
+    Image(PathBuf),
+    /// An object whose icon should be shown.
+    FileIcon(PathBuf),
     /// Uniform Type Identifier (UTI) icon.
     FileType(String<'a>),
 }
+
+/// An icon for an [`Item`].
+///
+/// If not provided the icon will default to the workflow icon.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Icon<'a>(IconInner<'a>);
 
 /// The type of item.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize)]
@@ -192,19 +197,19 @@ pub struct Output<'a> {
 
 impl Serialize for Icon<'_> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        match self {
-            Self::Path(path) => {
+        match &self.0 {
+            IconInner::Image(path) => {
                 let mut s = serializer.serialize_struct("Icon", 1)?;
                 s.serialize_field("path", &path)?;
                 s.end()
             }
-            Self::File(path) => {
+            IconInner::FileIcon(path) => {
                 let mut s = serializer.serialize_struct("Icon", 2)?;
                 s.serialize_field("type", "fileicon")?;
                 s.serialize_field("path", &path)?;
                 s.end()
             }
-            Self::FileType(string) => {
+            IconInner::FileType(string) => {
                 let mut s = serializer.serialize_struct("Icon", 2)?;
                 s.serialize_field("type", "filetype")?;
                 s.serialize_field("path", &string)?;
@@ -215,16 +220,61 @@ impl Serialize for Icon<'_> {
 }
 
 impl<'a> Icon<'a> {
-    pub fn new(path: impl Into<PathBuf>) -> Self {
-        Self::Path(path.into())
+    /// Create a new icon using the image at the given path.
+    ///
+    /// This path can be relative to the workflow directory.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use powerpack::Icon;
+    /// let icon = Icon::from_image("./assets/icon.png");
+    /// ```
+    pub fn from_image(path: impl Into<PathBuf>) -> Self {
+        Self(IconInner::Image(path.into()))
     }
 
-    pub fn from_file(path: impl Into<PathBuf>) -> Self {
-        Self::File(path.into())
+    /// Create a new icon based on the file provided.
+    ///
+    /// This path can be relative to the workflow directory.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use powerpack::Icon;
+    /// let icon = Icon::from_file_icon("./assets/example.jpg");
+    /// ```
+    ///
+    /// The above code would use the following icon:
+    ///
+    /// <img src="https://user-images.githubusercontent.com/17109887/118356177-4695fa80-b574-11eb-8908-c0ccd5f6d23c.png" height="50"/>
+    ///
+    /// You could combine with "/Applications/Safari.app" to show Safari's icon:
+    ///
+    /// ```
+    /// # use powerpack::Icon;
+    /// let icon = Icon::from_file_icon("/Applications/Safari.app");
+    /// ```
+    pub fn from_file_icon(path: impl Into<PathBuf>) -> Self {
+        Self(IconInner::FileIcon(path.into()))
     }
 
-    pub fn from_file_type(path: impl Into<String<'a>>) -> Self {
-        Self::FileType(path.into())
+    /// Create a new icon using an Apple [Uniform Type Identifier (UTI)][uti].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use powerpack::Icon;
+    /// let icon = Icon::from_type("public.jpeg");
+    /// ```
+    ///
+    /// The above code would use the following icon:
+    ///
+    /// <img src="https://user-images.githubusercontent.com/17109887/118356177-4695fa80-b574-11eb-8908-c0ccd5f6d23c.png" height="50"/>
+    ///
+    /// [uti]: https://en.wikipedia.org/wiki/Uniform_Type_Identifier
+    pub fn from_type(uti: impl Into<String<'a>>) -> Self {
+        Self(IconInner::FileType(uti.into()))
     }
 }
 
