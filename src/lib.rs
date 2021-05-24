@@ -48,7 +48,12 @@ fn is_default<T: Default + PartialEq>(t: &T) -> bool {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Alias for a lean clone-on-write string.
+#[cfg(feature = "beef")]
 pub type String<'a> = beef::lean::Cow<'a, str>;
+
+/// Alias for a clone-on-write string.
+#[cfg(not(feature = "beef"))]
+pub type String<'a> = std::borrow::Cow<'a, str>;
 
 /// A keyboard modifier.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize)]
