@@ -34,8 +34,8 @@ pub mod env;
 
 use std::collections::HashMap;
 use std::io;
-use std::path::PathBuf;
 
+use dairy::{PathBuf, String};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 
@@ -46,14 +46,6 @@ fn is_default<T: Default + PartialEq>(t: &T) -> bool {
 ////////////////////////////////////////////////////////////////////////////////
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
-
-/// Alias for a lean clone-on-write string.
-#[cfg(feature = "beef")]
-pub type String<'a> = beef::lean::Cow<'a, str>;
-
-/// Alias for a clone-on-write string.
-#[cfg(not(feature = "beef"))]
-pub type String<'a> = std::borrow::Cow<'a, str>;
 
 /// A keyboard modifier.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize)]
@@ -78,9 +70,9 @@ pub enum ModifierKey {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 enum IconInner<'a> {
     /// Load an image from a path.
-    Image(PathBuf),
+    Image(PathBuf<'a>),
     /// An object whose icon should be shown.
-    FileIcon(PathBuf),
+    FileIcon(PathBuf<'a>),
     /// Uniform Type Identifier (UTI) icon.
     FileType(String<'a>),
 }
@@ -230,7 +222,7 @@ impl<'a> Icon<'a> {
     /// # use powerpack::Icon;
     /// let icon = Icon::from_image("./assets/icon.png");
     /// ```
-    pub fn from_image(path: impl Into<PathBuf>) -> Self {
+    pub fn from_image(path: impl Into<PathBuf<'a>>) -> Self {
         Self(IconInner::Image(path.into()))
     }
 
@@ -255,7 +247,7 @@ impl<'a> Icon<'a> {
     /// # use powerpack::Icon;
     /// let icon = Icon::from_file_icon("/Applications/Safari.app");
     /// ```
-    pub fn from_file_icon(path: impl Into<PathBuf>) -> Self {
+    pub fn from_file_icon(path: impl Into<PathBuf<'a>>) -> Self {
         Self(IconInner::FileIcon(path.into()))
     }
 
