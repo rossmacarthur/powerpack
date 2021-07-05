@@ -21,7 +21,7 @@ cargo install powerpack-cli
 
 Now create a new project using a similar API as `cargo new` or `cargo init`.
 ```sh
-powerpack new myworkflow
+powerpack new myworkflow && cd myworkflow
 ```
 
 This will create a new Rust project as well as a `workflow/` directory
@@ -31,18 +31,22 @@ a release build of the workflow and copy it to the `workflow/` directory.
 powerpack build --release
 ```
 
-Now you can link it. The following will symlink the `workflow/` directory to
-the Alfred preferences folder.
+Now you can link it to Alfred. The following will symlink the `workflow/`
+directory to the Alfred preferences folder.
 ```sh
 powerpack link
 ```
+
+Now you can run the workflow from Alfred ✨!
 
 To package a `.alfredworkflow` file for release you can run the following.
 ```sh
 powerpack package
 ```
 
-## GitHub Action
+The release will be available at `target/workflow/myworkflow.alfredworkflow`.
+
+## 👷 GitHub Action
 
 [`setup-powerpack`][setup] can be used to install `powerpack` in a GitHub
 Actions workflow. For example:
