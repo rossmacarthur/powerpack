@@ -13,32 +13,24 @@ use clap::{AppSettings, Clap};
 use peter::Stylize;
 use toml_edit as toml;
 
-fn print(header: &str, message: &str) {
+fn print(header: &str, message: impl AsRef<str>) {
     if atty::is(atty::Stream::Stdout) {
-        println!("{:>12} {}", header.bold().green(), message);
+        println!("{:>12} {}", header.bold().green(), message.as_ref());
     } else {
-        println!("{:>12} {}", header, message);
+        println!("{:>12} {}", header, message.as_ref());
     }
 }
 
 fn prompt_for_workflow_info(doc: &toml::Document) -> Result<alfred::WorkflowInfo> {
     let package_name = doc["package"]["name"].as_str().context("expected string")?;
-
-    let author = doc["package"]["authors"][0]
-        .as_str()
-        .context("expected string")?;
-    let author = match author.find(" <") {
-        Some(i) => &author[..i],
-        None => author,
-    };
-
+    println!("Please enter the workflow details:");
     Ok(alfred::WorkflowInfo {
         name: package_name.to_owned(),
         bin_name: package_name.to_owned(),
-        bundle_id: casual::prompt("Enter the workflow bundle ID: ").get(),
-        author: author.to_owned(),
-        description: casual::prompt("Enter the workflow description: ").get(),
-        keyword: casual::prompt("Enter the workflow keyword: ").get(),
+        bundle_id: casual::prompt("Bundle ID: ").get(),
+        author: casual::prompt("Author: ").get(),
+        description: casual::prompt("Description: ").get(),
+        keyword: casual::prompt("Keyword: ").get(),
     })
 }
 
@@ -71,14 +63,10 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
         table["powerpack"] = toml::value(env!("CARGO_PKG_VERSION"));
         cargo::write_manifest(manifest_dir, &doc)?;
     }
-    print(
-        "Added",
-        &format!("powerpack v{} to dependencies", env!("CARGO_PKG_VERSION")),
-    );
 
     // Write our custom `main.rs`
     let main = manifest_dir.join("src").join("main.rs");
-    fs::write(main, include_str!("main.template.rs"))?;
+    fs::write(&main, include_str!("main.template.rs"))?;
     print("Finished", "created example script filter workflow");
 
     Ok(())
@@ -104,7 +92,7 @@ fn build(release: bool) -> Result<()> {
 
     print(
         "Copied",
-        &format!(
+        format!(
             "binary to `{}`",
             dst.strip_prefix(env::current_dir()?)?.display()
         ),
@@ -136,7 +124,7 @@ fn link() -> Result<()> {
         Some(exists) => {
             print(
                 "Symlinked",
-                &format!("workflow directory to `{}`", exists.display()),
+                format!("workflow directory to `{}`", exists.display()),
             );
         }
         None => {
@@ -145,14 +133,14 @@ fn link() -> Result<()> {
             symlink(&workflow_dir, &dst)?;
             print(
                 "Symlinked",
-                &format!("workflow directory to `{}`", dst.display()),
+                format!("workflow directory to `{}`", dst.display()),
             );
         }
     }
     Ok(())
 }
 
-/// Package the workflow into a `.alfred-workflow` file.
+/// Package the workflow into a `.alfredworkflow` file.
 fn package() -> Result<()> {
     let workflow_dir = cargo::workspace_directory()?.join("workflow");
     let dist_dir = cargo::target_directory()?.join("workflow");
@@ -169,7 +157,7 @@ fn package() -> Result<()> {
     alfred::package(&workflow_dir, dst)?;
     print(
         "Packaged",
-        &format!(
+        format!(
             "workflow at `{}`",
             dst.strip_prefix(env::current_dir()?)?.display()
         ),
