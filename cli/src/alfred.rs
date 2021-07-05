@@ -3,8 +3,6 @@ use std::io::prelude::*;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 
-use indexmap::indexmap;
-
 use anyhow::{Context, Result};
 
 pub struct WorkflowInfo {
@@ -19,7 +17,13 @@ pub struct WorkflowInfo {
 macro_rules! dict {
     ($($key:expr => $value:expr),*) => {
         plist::Value::Dictionary(
-            indexmap!{$($key.clone().into() => $value.clone().into()),*}.into_iter().collect()
+            {
+                let mut v: Vec<(String, plist::Value)> = vec![
+                    $( ($key.clone().into(), $value.clone().into()) ),*
+                ];
+                v.sort_by(|(a, _), (b, _)| a.cmp(b));
+                v.into_iter().collect()
+            }
         )
     }
 }

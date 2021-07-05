@@ -405,7 +405,6 @@ dependencies = [
  "casual",
  "clap",
  "home",
- "indexmap",
  "peter",
  "plist",
  "powerpack",
