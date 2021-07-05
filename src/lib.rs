@@ -220,9 +220,9 @@ impl<'a> Icon<'a> {
     ///
     /// ```
     /// # use powerpack::Icon;
-    /// let icon = Icon::from_image("./assets/icon.png");
+    /// let icon = Icon::with_image("./assets/icon.png");
     /// ```
-    pub fn from_image(path: impl Into<PathBuf<'a>>) -> Self {
+    pub fn with_image(path: impl Into<PathBuf<'a>>) -> Self {
         Self(IconInner::Image(path.into()))
     }
 
@@ -234,7 +234,7 @@ impl<'a> Icon<'a> {
     ///
     /// ```
     /// # use powerpack::Icon;
-    /// let icon = Icon::from_file_icon("./assets/example.jpg");
+    /// let icon = Icon::with_file_icon("./assets/example.jpg");
     /// ```
     ///
     /// The above code would use the following icon:
@@ -245,9 +245,9 @@ impl<'a> Icon<'a> {
     ///
     /// ```
     /// # use powerpack::Icon;
-    /// let icon = Icon::from_file_icon("/Applications/Safari.app");
+    /// let icon = Icon::with_file_icon("/Applications/Safari.app");
     /// ```
-    pub fn from_file_icon(path: impl Into<PathBuf<'a>>) -> Self {
+    pub fn with_file_icon(path: impl Into<PathBuf<'a>>) -> Self {
         Self(IconInner::FileIcon(path.into()))
     }
 
@@ -257,7 +257,7 @@ impl<'a> Icon<'a> {
     ///
     /// ```
     /// # use powerpack::Icon;
-    /// let icon = Icon::from_type("public.jpeg");
+    /// let icon = Icon::with_type("public.jpeg");
     /// ```
     ///
     /// The above code would use the following icon:
@@ -265,7 +265,7 @@ impl<'a> Icon<'a> {
     /// <img src="https://user-images.githubusercontent.com/17109887/118356177-4695fa80-b574-11eb-8908-c0ccd5f6d23c.png" height="50"/>
     ///
     /// [uti]: https://en.wikipedia.org/wiki/Uniform_Type_Identifier
-    pub fn from_type(uti: impl Into<String<'a>>) -> Self {
+    pub fn with_type(uti: impl Into<String<'a>>) -> Self {
         Self(IconInner::FileType(uti.into()))
     }
 }
