@@ -35,7 +35,7 @@ pub mod env;
 use std::collections::HashMap;
 use std::io;
 
-use dairy::{PathBuf, String};
+pub use dairy::{PathBuf, String};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 
