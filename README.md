@@ -48,12 +48,15 @@ The release will be available at `target/workflow/myworkflow.alfredworkflow`.
 
 ## 👷 GitHub Action
 
-[`setup-powerpack`][setup] can be used to install `powerpack` in a GitHub
-Actions workflow. For example:
+[`setup-crate`][setup] can be used to install `powerpack` in a GitHub Actions
+workflow. For example:
 ```yaml
 steps:
   - uses: actions/checkout@v2
-  - uses: extractions/setup-powerpack@v1
+  - uses: extractions/setup-crate@v1
+    with:
+      owner: rossmacarthur
+      name: powerpack
   - run: powerpack package
   # produces an artifact at `target/workflow/{name}.alfredworkflow`
 ```
