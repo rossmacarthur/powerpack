@@ -3,7 +3,7 @@
 //! See <https://www.alfredapp.com/help/workflows/script-environment-variables/>
 
 use std::env;
-use std::ffi::OsStr;
+use std::ffi::{OsStr, OsString};
 use std::path::PathBuf;
 
 /// Fetches the environment variable `key` from the current process.
@@ -26,7 +26,30 @@ pub fn var<K: AsRef<OsStr>>(key: K) -> Option<String> {
     env::var(key).ok().filter(|s| !s.is_empty())
 }
 
-/// Whether or not the user currently has the debug panel open.
+/// Fetches the environment variable `key` from the current process.
+///
+/// This function is similar to [`env::var_os(key)`][env::var] but it also maps
+/// an empty string to `None`.
+///
+/// # None
+///
+/// Returns `None` in the following cases:
+/// - if the environment variable is not present.
+/// - if the environment variable is set to an empty string.
+///
+/// # Panics
+///
+/// This function may panic if key is empty, contains an ASCII equals sign `'='`
+/// or the NUL character `'\0'`, or when the value contains the NUL character.
+///
+/// Note that the method will not check if the environment variable is valid
+/// Unicode. If you want to have an error on invalid UTF-8, use the [`var`]
+/// function instead.
+pub fn var_os<K: AsRef<OsStr>>(key: K) -> Option<OsString> {
+    env::var_os(key).filter(|s| !s.is_empty())
+}
+
+/// Whether or not the user currently has the Alfred debug panel open.
 pub fn is_debug() -> bool {
     var("alfred_debug").as_deref() == Some("1")
 }
@@ -36,7 +59,7 @@ pub fn is_debug() -> bool {
 /// If a user has synced their settings, this will allow you to find out where
 /// their settings are.
 pub fn preferences() -> Option<PathBuf> {
-    var("alfred_preferences").map(PathBuf::from)
+    var_os("alfred_preferences").map(PathBuf::from)
 }
 
 /// The Alfred version that is currently running.
@@ -77,12 +100,12 @@ pub fn workflow_version() -> Option<String> {
 ///
 /// This will only be populated if your workflow has a bundle id set.
 pub fn workflow_cache() -> Option<PathBuf> {
-    var("alfred_workflow_cache").map(PathBuf::from)
+    var_os("alfred_workflow_cache").map(PathBuf::from)
 }
 
 /// The recommended directory for non-volatile workflow data.
 ///
 /// This will only be populated if your workflow has a bundle id set.
 pub fn workflow_data() -> Option<PathBuf> {
-    var("alfred_workflow_data").map(PathBuf::from)
+    var_os("alfred_workflow_data").map(PathBuf::from)
 }
