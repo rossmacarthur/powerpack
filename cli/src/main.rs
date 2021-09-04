@@ -193,12 +193,13 @@ enum Command {
 
 #[derive(Debug, Clap)]
 #[clap(
-    author,
     about,
-    global_setting = AppSettings::DeriveDisplayOrder,
-    global_setting = AppSettings::DisableHelpSubcommand,
-    global_setting = AppSettings::GlobalVersion,
-    global_setting = AppSettings::VersionlessSubcommands,
+    author,
+    version,
+    setting = AppSettings::DeriveDisplayOrder,
+    setting = AppSettings::DisableHelpSubcommand,
+    setting = AppSettings::DisableVersionForSubcommands,
+    setting = AppSettings::PropagateVersion,
     setting = AppSettings::SubcommandRequiredElseHelp,
 )]
 struct Opt {

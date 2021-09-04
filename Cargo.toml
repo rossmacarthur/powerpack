@@ -1,6 +1,6 @@
 [package]
 name = "powerpack"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Ross MacArthur <ross@macarthur.io>"]
 edition = "2018"
 description = "⚡ Supercharge your Alfred workflows by building them in Rust!"

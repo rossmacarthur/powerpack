@@ -1,6 +1,6 @@
 [package]
 name = "powerpack-cli"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Ross MacArthur <ross@macarthur.io>"]
 edition = "2018"
 description = "⚡ Supercharge your Alfred workflows by building them in Rust!"
@@ -11,14 +11,14 @@ keywords = ["alfred", "workflow"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-anyhow = "1.0.41"
+anyhow = "1.0.43"
 atty = "0.2.14"
-cargo_metadata = "0.13.1"
+cargo_metadata = "0.14.0"
 casual = "0.2.0"
-clap = "3.0.0-beta.2"
+clap = "3.0.0-beta.4"
 home = "0.5.3"
 peter = "0.2.1"
-plist = "1.1.0"
+plist = "1.2.1"
 toml_edit = "0.2.1"
 uuid = { version = "0.8.2", features = ["v4"] }
 zip = { version = "0.5.13", features = ["deflate-zlib", "time"], default-features = false }
