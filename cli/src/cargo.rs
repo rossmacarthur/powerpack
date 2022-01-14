@@ -73,17 +73,16 @@ pub fn build(mode: Mode) -> Result<()> {
 }
 
 /// Get the release binary path.
-pub fn binary_name() -> Result<String> {
+pub fn binary_names() -> Result<Vec<String>> {
     let metadata = metadata::MetadataCommand::new().exec()?;
     let package = metadata.root_package().context("no root package")?;
-    let binary = package
+    let binaries = package
         .targets
         .iter()
-        .find(|target| target.kind.iter().any(|kind| kind == "bin"))
-        .context("no binary")?
-        .name
-        .clone();
-    Ok(binary)
+        .filter(|target| target.kind.iter().any(|kind| kind == "bin"))
+        .map(|target| target.name.clone())
+        .collect();
+    Ok(binaries)
 }
 
 /// Get the workspace directory.
@@ -111,4 +110,11 @@ pub fn write_manifest(dir: &Path, doc: &toml::Document) -> Result<()> {
     let path = dir.join("Cargo.toml");
     fs::write(&path, &doc.to_string_in_original_order())?;
     Ok(())
+}
+
+/// Get the package name
+pub fn package_name() -> Result<String> {
+    let metadata = metadata::MetadataCommand::new().exec()?;
+    let package = metadata.root_package().context("no root package")?;
+    Ok(package.name.clone())
 }

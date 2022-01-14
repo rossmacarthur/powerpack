@@ -83,18 +83,22 @@ fn build(release: bool) -> Result<()> {
 
     let workspace_dir = cargo::workspace_directory()?;
     let target_dir = cargo::target_directory()?;
-    let binary_name = cargo::binary_name()?;
-    fs::create_dir_all(workspace_dir.join("workflow"))?;
+    let binary_names = cargo::binary_names()?;
+    let workflow_dir = workspace_dir.join("workflow");
+    fs::create_dir_all(&workflow_dir)?;
 
-    let src = target_dir.join(mode.dir()).join(&binary_name);
-    let dst = workspace_dir.join("workflow").join(&binary_name);
-    fs::copy(&src, &dst)?;
+    binary_names.iter().for_each(|binary_name| {
+        let src = target_dir.join(mode.dir()).join(binary_name);
+        let dst = workflow_dir.join(binary_name);
+        fs::copy(&src, &dst).unwrap();
+    });
 
     print(
         "Copied",
         format!(
-            "binary to `{}`",
-            dst.strip_prefix(env::current_dir()?)?.display()
+            "binary to {}/{{{}}}",
+            workflow_dir.strip_prefix(env::current_dir()?)?.display(),
+            binary_names.join(", ")
         ),
     );
 
@@ -144,14 +148,14 @@ fn link() -> Result<()> {
 fn package() -> Result<()> {
     let workflow_dir = cargo::workspace_directory()?.join("workflow");
     let dist_dir = cargo::target_directory()?.join("workflow");
-    let mut binary_name = cargo::binary_name()?;
+    let mut package_name = cargo::package_name()?;
 
     // Just a hack because I tend to suffix my workflows with this.
-    if let Some(new) = binary_name.strip_suffix("-alfred-workflow") {
-        binary_name = new.to_owned();
+    if let Some(new) = package_name.strip_suffix("-alfred-workflow") {
+        package_name = new.to_owned();
     }
 
-    let dst = &dist_dir.join(binary_name).with_extension("alfredworkflow");
+    let dst = &dist_dir.join(package_name).with_extension("alfredworkflow");
 
     fs::create_dir_all(&dist_dir)?;
     alfred::package(&workflow_dir, dst)?;
