@@ -281,12 +281,14 @@ macro_rules! setter {
         setter! { $name, Option<String<'a>> }
     };
     ($name:ident, Option<$ty:ty>) => {
+        #[must_use]
         pub fn $name(mut self, value: impl Into<$ty>) -> Self {
             self.$name = Some(value.into());
             self
         }
     };
     ($name:ident, $ty:ty) => {
+        #[must_use]
         pub fn $name(mut self, value: impl Into<$ty>) -> Self {
             self.$name = value.into();
             self
@@ -340,6 +342,7 @@ impl<'a> Item<'a> {
     setter! { text, Option<Text<'a>> }
     setter! { quicklook_url }
 
+    #[must_use]
     pub fn modifier(mut self, key: ModifierKey, data: ModifierData<'a>) -> Self {
         self.modifiers.insert(key, data);
         self
@@ -347,6 +350,7 @@ impl<'a> Item<'a> {
 }
 
 impl<'a> Output<'a> {
+    #[must_use]
     pub fn items<I>(mut self, iter: I) -> Self
     where
         I: IntoIterator<Item = Item<'a>>,
