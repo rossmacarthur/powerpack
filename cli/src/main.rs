@@ -9,7 +9,7 @@ use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
-use clap::{AppSettings, Clap};
+use clap::{AppSettings, ColorChoice, Parser};
 use peter::Stylize;
 use toml_edit as toml;
 
@@ -166,7 +166,7 @@ fn package() -> Result<()> {
     Ok(())
 }
 
-#[derive(Debug, Clap)]
+#[derive(Debug, Parser)]
 enum Command {
     /// Create a new Rust alfred workflow.
     New {
@@ -191,15 +191,14 @@ enum Command {
     Package,
 }
 
-#[derive(Debug, Clap)]
+#[derive(Debug, Parser)]
 #[clap(
     about,
     author,
     version,
+    color = ColorChoice::Never,
     setting = AppSettings::DeriveDisplayOrder,
     setting = AppSettings::DisableHelpSubcommand,
-    setting = AppSettings::DisableVersionForSubcommands,
-    setting = AppSettings::PropagateVersion,
     setting = AppSettings::SubcommandRequiredElseHelp,
 )]
 struct Opt {
