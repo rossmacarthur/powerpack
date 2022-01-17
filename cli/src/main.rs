@@ -87,20 +87,19 @@ fn build(release: bool) -> Result<()> {
     let workflow_dir = workspace_dir.join("workflow");
     fs::create_dir_all(&workflow_dir)?;
 
-    binary_names.iter().for_each(|binary_name| {
+    for binary_name in &binary_names {
         let src = target_dir.join(mode.dir()).join(binary_name);
         let dst = workflow_dir.join(binary_name);
-        fs::copy(&src, &dst).unwrap();
-    });
+        fs::copy(&src, &dst)?;
 
-    print(
-        "Copied",
-        format!(
-            "binary to {}/{{{}}}",
-            workflow_dir.strip_prefix(env::current_dir()?)?.display(),
-            binary_names.join(", ")
-        ),
-    );
+        print(
+            "Copied",
+            format!(
+                "binary to `{}`",
+                dst.strip_prefix(env::current_dir()?)?.display()
+            ),
+        );
+    }
 
     Ok(())
 }
