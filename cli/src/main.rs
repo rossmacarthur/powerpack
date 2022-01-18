@@ -81,17 +81,14 @@ fn build(release: bool) -> Result<()> {
     };
     cargo::build(mode)?;
 
-    let workspace_dir = cargo::workspace_directory()?;
-    let target_dir = cargo::target_directory()?;
-    let binary_names = cargo::binary_names()?;
-    let workflow_dir = workspace_dir.join("workflow");
+    let metadata = cargo::metadata()?;
+    let workflow_dir = metadata.workspace_dir.join("workflow");
     fs::create_dir_all(&workflow_dir)?;
 
-    for binary_name in &binary_names {
-        let src = target_dir.join(mode.dir()).join(binary_name);
+    for binary_name in &metadata.binary_names {
+        let src = metadata.target_dir.join(mode.dir()).join(binary_name);
         let dst = workflow_dir.join(binary_name);
         fs::copy(&src, &dst)?;
-
         print(
             "Copied",
             format!(
@@ -120,7 +117,8 @@ fn find_link(workflow_dir: &Path, workflows_dir: &Path) -> Result<Option<PathBuf
 
 /// Link the workflow.
 fn link() -> Result<()> {
-    let workflow_dir = cargo::workspace_directory()?.join("workflow");
+    let metadata = cargo::metadata()?;
+    let workflow_dir = metadata.workspace_dir.join("workflow");
     let workflows_dir = alfred::workflows_directory()?;
 
     match find_link(&workflow_dir, &workflows_dir)? {
@@ -145,9 +143,10 @@ fn link() -> Result<()> {
 
 /// Package the workflow into a `.alfredworkflow` file.
 fn package() -> Result<()> {
-    let workflow_dir = cargo::workspace_directory()?.join("workflow");
-    let dist_dir = cargo::target_directory()?.join("workflow");
-    let mut package_name = cargo::package_name()?;
+    let metadata = cargo::metadata()?;
+    let workflow_dir = metadata.workspace_dir.join("workflow");
+    let dist_dir = metadata.target_dir.join("workflow");
+    let mut package_name = metadata.package_name;
 
     // Just a hack because I tend to suffix my workflows with this.
     if let Some(new) = package_name.strip_suffix("-alfred-workflow") {

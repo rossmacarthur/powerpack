@@ -19,6 +19,14 @@ pub enum Mode {
     Release,
 }
 
+#[derive(Debug)]
+pub struct Metadata {
+    pub workspace_dir: PathBuf,
+    pub target_dir: PathBuf,
+    pub package_name: String,
+    pub binary_names: Vec<String>,
+}
+
 impl Cargo {
     fn new<S: AsRef<OsStr>>(subcmd: S) -> Self {
         let mut cmd = process::Command::new("cargo");
@@ -72,29 +80,34 @@ pub fn build(mode: Mode) -> Result<()> {
     cmd.run()
 }
 
-/// Get the release binary path.
-pub fn binary_names() -> Result<Vec<String>> {
-    let metadata = metadata::MetadataCommand::new().exec()?;
-    let package = metadata.root_package().context("no root package")?;
-    let binaries = package
+/// Run a `cargo metadata` command.
+pub fn metadata() -> Result<Metadata> {
+    let metadata::Metadata {
+        packages,
+        workspace_root,
+        target_directory,
+        resolve,
+        ..
+    } = metadata::MetadataCommand::new().exec()?;
+
+    let root = move || {
+        let root = resolve.as_ref()?.root.as_ref()?;
+        packages.into_iter().find(|pkg| &pkg.id == root)
+    };
+    let package = root().context("no root package")?;
+    let binary_names = package
         .targets
-        .iter()
+        .into_iter()
         .filter(|target| target.kind.iter().any(|kind| kind == "bin"))
-        .map(|target| target.name.clone())
+        .map(|target| target.name)
         .collect();
-    Ok(binaries)
-}
 
-/// Get the workspace directory.
-pub fn workspace_directory() -> Result<PathBuf> {
-    let metadata = metadata::MetadataCommand::new().exec()?;
-    Ok(metadata.workspace_root.into())
-}
-
-/// Get the target directory.
-pub fn target_directory() -> Result<PathBuf> {
-    let metadata = metadata::MetadataCommand::new().exec()?;
-    Ok(metadata.target_directory.into())
+    Ok(Metadata {
+        workspace_dir: workspace_root.into(),
+        target_dir: target_directory.into(),
+        package_name: package.name,
+        binary_names,
+    })
 }
 
 /// Read the Cargo manifest.
@@ -110,11 +123,4 @@ pub fn write_manifest(dir: &Path, doc: &toml::Document) -> Result<()> {
     let path = dir.join("Cargo.toml");
     fs::write(&path, &doc.to_string_in_original_order())?;
     Ok(())
-}
-
-/// Get the package name
-pub fn package_name() -> Result<String> {
-    let metadata = metadata::MetadataCommand::new().exec()?;
-    let package = metadata.root_package().context("no root package")?;
-    Ok(package.name.clone())
 }
