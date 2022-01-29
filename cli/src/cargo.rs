@@ -121,6 +121,6 @@ pub fn read_manifest(dir: &Path) -> Result<toml::Document> {
 /// Write a Cargo manifest.
 pub fn write_manifest(dir: &Path, doc: &toml::Document) -> Result<()> {
     let path = dir.join("Cargo.toml");
-    fs::write(&path, &doc.to_string_in_original_order())?;
+    fs::write(&path, &doc.to_string())?;
     Ok(())
 }
