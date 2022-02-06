@@ -72,10 +72,14 @@ where
 }
 
 /// Run a `cargo build` command.
-pub fn build(mode: Mode, target: Option<&str>) -> Result<()> {
+pub fn build(mode: Mode, bins: &[String], target: Option<&str>) -> Result<()> {
     let mut cmd = Cargo::new("build");
     if let Mode::Release = mode {
         cmd.arg("--release");
+    }
+    for bin in bins {
+        cmd.arg("--bin");
+        cmd.arg(bin);
     }
     if let Some(target) = target {
         cmd.arg("--target");

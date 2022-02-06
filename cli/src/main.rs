@@ -73,13 +73,13 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
 }
 
 /// Build the workflow.
-fn build(release: bool, target: Option<String>) -> Result<()> {
+fn build(bins: Vec<String>, release: bool, target: Option<String>) -> Result<()> {
     let mode = if release {
         cargo::Mode::Release
     } else {
         cargo::Mode::Debug
     };
-    cargo::build(mode, target.as_deref())?;
+    cargo::build(mode, &bins, target.as_deref())?;
 
     let metadata = cargo::metadata()?;
     let workflow_dir = metadata.workspace_dir.join("workflow");
@@ -91,6 +91,10 @@ fn build(release: bool, target: Option<String>) -> Result<()> {
     };
 
     for binary_name in &metadata.binary_names {
+        if !bins.is_empty() && !bins.contains(binary_name) {
+            continue;
+        }
+
         let src = src_dir.join(binary_name);
         let dst = workflow_dir.join(binary_name);
         fs::copy(&src, &dst)?;
@@ -195,6 +199,10 @@ enum Command {
 
     /// Build the workflow.
     Build {
+        /// Build only the specified binary.
+        #[clap(long, value_name = "NAME")]
+        bin: Vec<String>,
+
         /// Build artifacts in release mode, with optimizations.
         #[clap(long)]
         release: bool,
@@ -209,6 +217,10 @@ enum Command {
 
     /// Package the workflow as an `.alfredworkflow` file.
     Package {
+        /// Package only the specified binary.
+        #[clap(long, value_name = "NAME")]
+        bin: Vec<String>,
+
         /// Build for the target triple.
         #[clap(long, value_name = "TRIPLE")]
         target: Option<String>,
@@ -241,14 +253,18 @@ fn main() -> anyhow::Result<()> {
             let path = path.as_deref().unwrap_or_else(|| Path::new("."));
             init(path, name)?;
         }
-        Command::Build { release, target } => {
-            build(release, target)?;
+        Command::Build {
+            bin,
+            release,
+            target,
+        } => {
+            build(bin, release, target)?;
         }
         Command::Link => {
             link()?;
         }
-        Command::Package { target } => {
-            build(true, target)?;
+        Command::Package { bin, target } => {
+            build(bin, true, target)?;
             package()?;
         }
     }
