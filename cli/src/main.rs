@@ -73,20 +73,25 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
 }
 
 /// Build the workflow.
-fn build(release: bool) -> Result<()> {
+fn build(release: bool, target: Option<String>) -> Result<()> {
     let mode = if release {
         cargo::Mode::Release
     } else {
         cargo::Mode::Debug
     };
-    cargo::build(mode)?;
+    cargo::build(mode, target.as_deref())?;
 
     let metadata = cargo::metadata()?;
     let workflow_dir = metadata.workspace_dir.join("workflow");
     fs::create_dir_all(&workflow_dir)?;
 
+    let src_dir = match target {
+        Some(target) => metadata.target_dir.join(target).join(mode.dir()),
+        None => metadata.target_dir.join(mode.dir()),
+    };
+
     for binary_name in &metadata.binary_names {
-        let src = metadata.target_dir.join(mode.dir()).join(binary_name);
+        let src = src_dir.join(binary_name);
         let dst = workflow_dir.join(binary_name);
         fs::copy(&src, &dst)?;
         print(
@@ -186,11 +191,17 @@ enum Command {
     Build {
         #[clap(long)]
         release: bool,
+
+        #[clap(long)]
+        target: Option<String>,
     },
     /// Symlink the workflow directory to the Alfred workflow directory.
     Link,
     /// Package the workflow as an `.alfredworkflow` file.
-    Package,
+    Package {
+        #[clap(long)]
+        target: Option<String>,
+    },
 }
 
 #[derive(Debug, Parser)]
@@ -219,14 +230,14 @@ fn main() -> anyhow::Result<()> {
             let path = path.as_deref().unwrap_or_else(|| Path::new("."));
             init(path, name)?;
         }
-        Command::Build { release } => {
-            build(release)?;
+        Command::Build { release, target } => {
+            build(release, target)?;
         }
         Command::Link => {
             link()?;
         }
-        Command::Package => {
-            build(true)?;
+        Command::Package { target } => {
+            build(true, target)?;
             package()?;
         }
     }
