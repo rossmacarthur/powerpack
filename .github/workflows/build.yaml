@@ -17,11 +17,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: ${{ matrix.toolchain }}
-        components: rustfmt, clippy
-        override: true
+    - name: Setup Rust
+      run: |
+        rustup set profile default
+        rustup toolchain install ${{ matrix.toolchain }}
+        rustup override set ${{ matrix.toolchain }}
 
     - name: Rustfmt
       run: cargo fmt -- --check
@@ -57,11 +57,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        profile: minimal
-        override: true
+    - name: Setup Rust
+      run: |
+        rustup set profile minimal
+        rustup toolchain install stable
+        rustup override set stable
 
     - name: Publish
       env:
@@ -74,31 +74,36 @@ jobs:
     needs: check-version
     runs-on: macos-latest
 
+    strategy:
+      matrix:
+        target: [x86_64-apple-darwin, aarch64-apple-darwin]
+
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
+      - name: Setup Rust
+        run: |
+          rustup set profile minimal
+          rustup toolchain install stable
+          rustup override set stable
+          rustup target add ${{ matrix.target }}
 
       - name: Calculate version from tag
         id: version
         run: echo "::set-output name=value::${GITHUB_REF#refs/tags/}"
 
       - name: Build
-        run: cargo build --package powerpack-cli --locked --release
+        run: cargo build --package powerpack-cli --locked --release --target ${{ matrix.target }}
 
       - name: Strip binary
-        run: strip target/release/$CRATE
+        run: strip target/${{ matrix.target }}/release/$CRATE
 
       - name: Archive
         id: archive
         run: |
           mkdir release
-          archive=$CRATE-${{ steps.version.outputs.value }}-x86_64-apple-darwin.tar.gz
-          cp target/release/$CRATE release/$CRATE
+          archive=$CRATE-${{ steps.version.outputs.value }}-${{ matrix.target }}.tar.gz
+          cp target/${{ matrix.target }}/release/$CRATE release/$CRATE
           cp LICENSE* release
           cp README.md release
           cd release
