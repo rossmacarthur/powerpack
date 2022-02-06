@@ -178,28 +178,39 @@ enum Command {
     /// Create a new Rust alfred workflow.
     New {
         path: PathBuf,
+
+        /// Set the resulting package name, defaults to the directory name.
         #[clap(long)]
         name: Option<OsString>,
     },
+
     /// Create a new Rust alfred workflow in an existing directory [default: .]
     Init {
         path: Option<PathBuf>,
+
+        /// Set the resulting package name, defaults to the directory name.
         #[clap(long)]
         name: Option<OsString>,
     },
+
     /// Build the workflow.
     Build {
+        /// Build artifacts in release mode, with optimizations.
         #[clap(long)]
         release: bool,
 
-        #[clap(long)]
+        /// Build for the target triple.
+        #[clap(long, value_name = "TRIPLE")]
         target: Option<String>,
     },
+
     /// Symlink the workflow directory to the Alfred workflow directory.
     Link,
+
     /// Package the workflow as an `.alfredworkflow` file.
     Package {
-        #[clap(long)]
+        /// Build for the target triple.
+        #[clap(long, value_name = "TRIPLE")]
         target: Option<String>,
     },
 }
