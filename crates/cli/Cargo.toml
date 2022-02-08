@@ -24,7 +24,7 @@ uuid = { version = "0.8.2", features = ["v4"] }
 zip = { version = "0.5.13", features = ["deflate-zlib", "time"], default-features = false }
 
 [dev-dependencies]
-powerpack = { path = ".." }
+powerpack = { path = "../.." }
 
 [[bin]]
 name = "powerpack"
