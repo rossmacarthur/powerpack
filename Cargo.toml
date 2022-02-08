@@ -12,8 +12,13 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 dairy = { version = "0.2.2", features = ["serde"] }
+powerpack-detach = { version = "0.3.0", path = "crates/detach", optional = true }
 serde = { version = "1.0.136", features = ["derive"] }
 serde_json = "1.0.78"
+
+[features]
+default = []
+detach = ["powerpack-detach"]
 
 [workspace]
 members = ["crates/*"]

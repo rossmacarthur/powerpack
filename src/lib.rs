@@ -39,6 +39,9 @@ pub use dairy::{PathBuf, String};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 
+#[cfg(feature = "detach")]
+pub use powerpack_detach as detach;
+
 fn is_default<T: Default + PartialEq>(t: &T) -> bool {
     t == &T::default()
 }
