@@ -48,7 +48,8 @@ jobs:
       - name: Check tag against package versions
         run: |
           grep '^version = "${{ steps.version.outputs.value }}"$' Cargo.toml
-          grep '^version = "${{ steps.version.outputs.value }}"$' cli/Cargo.toml
+          grep '^version = "${{ steps.version.outputs.value }}"$' crates/cli/Cargo.toml
+          grep '^version = "${{ steps.version.outputs.value }}"$' crates/detach/Cargo.toml
 
   publish:
     needs: check-version
@@ -67,8 +68,9 @@ jobs:
       env:
         CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
       run: |
+        cargo publish --manifest-path crates/detach/Cargo.toml
         cargo publish
-        cargo publish --manifest-path cli/Cargo.toml
+        cargo publish --manifest-path crates/cli/Cargo.toml
 
   release:
     needs: check-version
