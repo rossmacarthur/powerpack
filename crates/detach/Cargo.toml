@@ -1,6 +1,6 @@
 [package]
 name = "powerpack-detach"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Ross MacArthur <ross@macarthur.io>"]
 edition = "2018"
 description = "⚡ Detach a background process from your Alfred workflow."

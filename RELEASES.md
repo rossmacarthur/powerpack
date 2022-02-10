@@ -1,5 +1,16 @@
 # 📝 Release notes
 
+### 0.3.1
+
+*February 10th, 2022*
+
+#### powerpack
+
+- [Add `powerpack-detach` crate.][bfb3492] Re-exported as `powerpack::detach`
+  when the `detach` feature is enabled in `powerpack`.
+
+[bfb3492]: https://github.com/rossmacarthur/powerpack/commit/bfb34921503fee1661ab0f0f97c22cb8e4f1907c
+
 ### 0.3.0
 
 *February 6th, 2022*

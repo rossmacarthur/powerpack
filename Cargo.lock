@@ -371,7 +371,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "dairy",
  "powerpack-detach",
@@ -381,7 +381,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack-cli"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "atty",
@@ -399,7 +399,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack-detach"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "libc",
  "log",
