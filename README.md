@@ -68,7 +68,8 @@ steps:
 The following projects are built using `powerpack`.
 
 - [crates.alfredworkflow](https://github.com/rossmacarthur/crates.alfredworkflow)
-- [emojis.alfredworkflow](https://github.com/rossmacarthur/emojis.alfredworkflow)
+- [github.alfredworkflow](https://github.com/rossmacarthur/github.alfredworkflow)
+- [gitlab.alfredworkflow](https://github.com/rossmacarthur/gitlab.alfredworkflow)
 
 ## License
 
