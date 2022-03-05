@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "title": "Desktop",
+      "subtitle": "~/Desktop",
+      "uid": "desktop",
+      "arg": "~/Desktop",
+      "icon": {
+        "type": "fileicon",
+        "path": "~/Desktop"
+      },
+      "autocomplete": "~/Desktop",
+      "type": "file"
+    }
+  ]
+}

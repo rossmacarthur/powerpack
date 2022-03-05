@@ -1,0 +1,35 @@
+{
+  "items": [
+    {
+      "title": "Hello world!",
+      "subtitle": "This is a subtitle",
+      "uid": "unique identifier",
+      "arg": "/path/to/file.jpg",
+      "icon": {
+        "type": "filetype",
+        "path": "public.jpeg"
+      },
+      "valid": true,
+      "match": "use this to filter",
+      "autocomplete": "to this",
+      "type": "file:skipcheck",
+      "mods": {
+        "alt": {
+          "arg": "/path/to/modified.jpg"
+        },
+        "ctrl": {
+          "icon": {
+            "path": "/path/to/file.png"
+          }
+        },
+        "shift": {
+          "valid": false
+        },
+        "cmd": {
+          "subtitle": "⌘ changes the subtitle"
+        }
+      },
+      "quicklookurl": "https://example.com"
+    }
+  ]
+}
