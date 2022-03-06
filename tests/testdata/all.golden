@@ -14,20 +14,24 @@
       "autocomplete": "to this",
       "type": "file:skipcheck",
       "mods": {
-        "alt": {
-          "arg": "/path/to/modified.jpg"
+        "cmd": {
+          "subtitle": "⌘ changes the subtitle"
+        },
+        "shift": {
+          "valid": false
         },
         "ctrl": {
           "icon": {
             "path": "/path/to/file.png"
           }
         },
-        "shift": {
-          "valid": false
-        },
-        "cmd": {
-          "subtitle": "⌘ changes the subtitle"
+        "alt": {
+          "arg": "/path/to/modified.jpg"
         }
+      },
+      "text": {
+        "copy": "this text will be copied when with ⌘C",
+        "largetype": "this text will be displayed with ⌘L"
       },
       "quicklookurl": "https://example.com"
     }

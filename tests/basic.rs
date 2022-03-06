@@ -24,6 +24,8 @@ fn all() {
         .matches("use this to filter")
         .autocomplete("to this")
         .kind(Kind::FileSkipCheck)
+        .copy_text("this text will be copied when with ⌘C")
+        .large_type_text("this text will be displayed with ⌘L")
         .modifier(
             ModifierKey::Command,
             ModifierData::new().subtitle("⌘ changes the subtitle"),

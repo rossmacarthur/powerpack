@@ -98,13 +98,14 @@ pub enum Kind {
 }
 
 /// The copied or large type text.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
-pub struct Text {
+#[derive(Debug, Clone, Default, PartialEq, Eq, Hash, Serialize)]
+struct Text {
     /// Defines the text the user will get when copying the item (⌘+C).
+    #[serde(skip_serializing_if = "Option::is_none")]
     copy: Option<String>,
 
     /// Defines the text the user will see in large type (⌘+L).
-    #[serde(rename = "largetype")]
+    #[serde(rename = "largetype", skip_serializing_if = "Option::is_none")]
     large_type: Option<String>,
 }
 
@@ -425,8 +426,18 @@ impl Item {
     /// If these are not defined, you will inherit Alfred's standard behaviour
     /// where the arg is copied to the Clipboard or used for Large Type.
     #[must_use]
-    pub fn text(mut self, text: impl Into<Text>) -> Self {
-        self.text = Some(text.into());
+    pub fn copy_text(mut self, copy: impl Into<String>) -> Self {
+        self.text.get_or_insert_with(Text::default).copy = Some(copy.into());
+        self
+    }
+
+    /// Set the text the user will get when displaying large type with ⌘L.
+    ///
+    /// If this is not defined, you will inherit Alfred's standard behaviour
+    /// where the arg is used for Large Type.
+    #[must_use]
+    pub fn large_type_text(mut self, large_type: impl Into<String>) -> Self {
+        self.text.get_or_insert_with(Text::default).large_type = Some(large_type.into());
         self
     }
 
