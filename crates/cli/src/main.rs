@@ -125,28 +125,33 @@ fn find_link(workflow_dir: &Path, workflows_dir: &Path) -> Result<Option<PathBuf
 }
 
 /// Link the workflow.
-fn link() -> Result<()> {
+fn link(force: bool) -> Result<()> {
     let metadata = cargo::metadata()?;
     let workflow_dir = metadata.workspace_dir.join("workflow");
     let workflows_dir = alfred::workflows_directory()?;
 
-    match find_link(&workflow_dir, &workflows_dir)? {
-        Some(exists) => {
+    if let Some(path) = find_link(&workflow_dir, &workflows_dir)? {
+        if !force {
             print(
                 "Symlinked",
-                format!("workflow directory to `{}`", exists.display()),
+                format!("workflow directory to `{}`", path.display()),
             );
+            return Ok(());
         }
-        None => {
-            let uid = uuid::Uuid::new_v4().to_string().to_uppercase();
-            let dst = workflows_dir.join(&format!("user.workflow.{}", uid));
-            symlink(&workflow_dir, &dst)?;
-            print(
-                "Symlinked",
-                format!("workflow directory to `{}`", dst.display()),
-            );
-        }
+        fs::remove_file(&path)?;
+        print(
+            "Removed",
+            format!("existing symlink at `{}`", path.display()),
+        );
     }
+
+    let uid = uuid::Uuid::new_v4().to_string().to_uppercase();
+    let dst = workflows_dir.join(&format!("user.workflow.{}", uid));
+    symlink(&workflow_dir, &dst)?;
+    print(
+        "Symlinked",
+        format!("workflow directory to `{}`", dst.display()),
+    );
     Ok(())
 }
 
@@ -213,7 +218,11 @@ enum Command {
     },
 
     /// Symlink the workflow directory to the Alfred workflow directory.
-    Link,
+    Link {
+        /// Delete original symlink and recreate the symlink.
+        #[clap(long)]
+        force: bool,
+    },
 
     /// Package the workflow as an `.alfredworkflow` file.
     Package {
@@ -260,8 +269,8 @@ fn main() -> anyhow::Result<()> {
         } => {
             build(bin, release, target)?;
         }
-        Command::Link => {
-            link()?;
+        Command::Link { force } => {
+            link(force)?;
         }
         Command::Package { bin, target } => {
             build(bin, true, target)?;

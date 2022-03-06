@@ -28,6 +28,12 @@
 [707a28f]: https://github.com/rossmacarthur/powerpack/commit/707a28f6df773a4e6469f60fca03d6c286a43851
 [ce1b88f]: https://github.com/rossmacarthur/powerpack/commit/ce1b88f931b3f9002d034afd30d943fe321847e3
 
+#### powerpack-cli
+
+- [Add --force option to link subcommand.][b1d156d]
+
+[b1d156d]: https://github.com/rossmacarthur/powerpack/commit/b1d156dda02f10c8bc787e6c20c62799385f4924
+
 ### 0.3.1
 
 *February 10th, 2022*
