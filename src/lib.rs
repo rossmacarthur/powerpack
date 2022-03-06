@@ -279,54 +279,45 @@ impl Default for Kind {
     }
 }
 
-macro_rules! setter {
-    ($name:ident) => {
-        setter! { $name, Option<String> }
-    };
-    ($name:ident, Option<$ty:ty>) => {
-        #[must_use]
-        pub fn $name(mut self, value: impl Into<$ty>) -> Self {
-            self.$name = Some(value.into());
-            self
-        }
-    };
-    ($name:ident, $ty:ty) => {
-        #[must_use]
-        pub fn $name(mut self, value: impl Into<$ty>) -> Self {
-            self.$name = value.into();
-            self
-        }
-    };
-}
-
 impl ModifierData {
     /// Create a new modifier data.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use powerpack::ModifierData;
-    /// let data = ModifierData::new();
-    /// ```
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
-    setter! { subtitle }
-    setter! { arg }
-    setter! { icon, Option<Icon> }
-    setter! { valid, Option<bool> }
+    /// The subtitle for when this modifier is activated.
+    #[must_use]
+    pub fn subtitle(mut self, subtitle: impl Into<String>) -> Self {
+        self.subtitle = Some(subtitle.into());
+        self
+    }
+
+    /// The arg for when this modifier is activated.
+    #[must_use]
+    pub fn arg(mut self, arg: impl Into<String>) -> Self {
+        self.arg = Some(arg.into());
+        self
+    }
+
+    /// The icon for when this modifier is activated.
+    #[must_use]
+    pub fn icon(mut self, arg: impl Into<Icon>) -> Self {
+        self.icon = Some(arg.into());
+        self
+    }
+
+    /// Whether this item is valid when the modifier is activated.
+    #[must_use]
+    pub fn valid(mut self, valid: impl Into<bool>) -> Self {
+        self.valid = Some(valid.into());
+        self
+    }
 }
 
 impl Item {
-    /// Create a new item.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use powerpack::Item;
-    /// let item = Item::new("something");
-    /// ```
+    /// Create a new item with the provided title.
+    #[must_use]
     pub fn new(title: impl Into<String>) -> Self {
         Self {
             title: title.into(),
@@ -334,17 +325,130 @@ impl Item {
         }
     }
 
-    setter! { subtitle }
-    setter! { uid }
-    setter! { arg }
-    setter! { icon, Option<Icon> }
-    setter! { valid, Option<bool> }
-    setter! { matches }
-    setter! { autocomplete }
-    setter! { kind, Kind }
-    setter! { text, Option<Text> }
-    setter! { quicklook_url }
+    /// Set the subtitle for this item.
+    #[must_use]
+    pub fn subtitle(mut self, subtitle: impl Into<String>) -> Self {
+        self.subtitle = Some(subtitle.into());
+        self
+    }
 
+    /// Set the UID for this item.
+    ///
+    /// This is a unique identifier for the item which allows help Alfred to
+    /// learn about this item for subsequent sorting and ordering of the user's
+    /// actioned results.
+    ///
+    /// It is important that you use the same UID throughout subsequent
+    /// executions of your script to take advantage of Alfred's knowledge and
+    /// sorting. If you would like Alfred to always show the results in the
+    /// order you return them from your script, exclude the UID field.
+    #[must_use]
+    pub fn uid(mut self, uid: impl Into<String>) -> Self {
+        self.uid = Some(uid.into());
+        self
+    }
+
+    /// Set the argument which is passed through the workflow to the connected
+    /// output action.
+    ///
+    /// While this attribute is optional, it's highly recommended that you
+    /// populate this as it's the string which is passed to your connected
+    /// output actions. If excluded, you won't know which result item the user
+    /// has selected.
+    #[must_use]
+    pub fn arg(mut self, arg: impl Into<String>) -> Self {
+        self.arg = Some(arg.into());
+        self
+    }
+
+    /// Set the icon displayed in the result row.
+    ///
+    /// Workflows are run from their workflow folder, so you can reference icons
+    /// stored in your workflow relatively.
+    #[must_use]
+    pub fn icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.icon = Some(icon.into());
+        self
+    }
+
+    /// Set whether this item is valid or not.
+    ///
+    /// If an item is valid then Alfred will action this item when the user
+    /// presses return. If the item is not valid, Alfred will do nothing. This
+    /// allows you to intelligently prevent Alfred from actioning a result based
+    /// on the current query passed into your script.
+    ///
+    /// If you exclude the valid attribute, Alfred assumes that your item is
+    /// valid.
+    #[must_use]
+    pub fn valid(mut self, valid: impl Into<bool>) -> Self {
+        self.valid = Some(valid.into());
+        self
+    }
+
+    /// Set the text that Alfred will match against.
+    ///
+    /// This field enables you to define what Alfred matches against when the
+    /// workflow is set to "Alfred Filters Results". If match is present, it
+    /// fully replaces matching on the title property.
+    ///
+    /// Note that the match field is always treated as case insensitive, and
+    /// intelligently treated as diacritic insensitive. If the search query
+    /// contains a diacritic, the match becomes diacritic sensitive.
+    #[must_use]
+    pub fn matches(mut self, matches: impl Into<String>) -> Self {
+        self.matches = Some(matches.into());
+        self
+    }
+
+    /// Set the autocomplete value for this item.
+    ///
+    /// An optional but recommended string you can provide which is populated
+    /// into Alfred's search field if the user auto-complete's the selected
+    /// result (⇥ by default).
+    #[must_use]
+    pub fn autocomplete(mut self, autocomplete: impl Into<String>) -> Self {
+        self.autocomplete = Some(autocomplete.into());
+        self
+    }
+
+    /// Set the type of item.
+    #[must_use]
+    pub fn kind(mut self, kind: impl Into<Kind>) -> Self {
+        self.kind = kind.into();
+        self
+    }
+
+    /// Set the text the user will get when copying the selected result row with
+    /// ⌘C or displaying large type with ⌘L.
+    ///
+    /// If these are not defined, you will inherit Alfred's standard behaviour
+    /// where the arg is copied to the Clipboard or used for Large Type.
+    #[must_use]
+    pub fn text(mut self, text: impl Into<Text>) -> Self {
+        self.text = Some(text.into());
+        self
+    }
+
+    /// Set the Quick Look URL for the item.
+    ///
+    /// This will be visible if the user uses the Quick Look feature within
+    /// Alfred (tapping shift, or ⌘Y). This field will also accept a file path,
+    /// both absolute and relative to home using ~/.
+    ///
+    /// If absent, Alfred will attempt to use the arg as the quicklook URL.
+    #[must_use]
+    pub fn quicklook_url(mut self, quicklook_url: impl Into<String>) -> Self {
+        self.quicklook_url = Some(quicklook_url.into());
+        self
+    }
+
+    /// Add a modifier key configuration.
+    ///
+    /// This gives you control over how the modifier keys react. You can now
+    /// define the valid attribute to mark if the result is valid based on the
+    /// modifier selection and set a different arg to be passed out if actioned
+    /// with the modifier.
     #[must_use]
     pub fn modifier(mut self, key: ModifierKey, data: ModifierData) -> Self {
         self.modifiers.insert(key, data);
@@ -353,6 +457,13 @@ impl Item {
 }
 
 impl Output {
+    /// Create a new output.
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Set the list of items to output.
     #[must_use]
     pub fn items<I>(mut self, iter: I) -> Self
     where
