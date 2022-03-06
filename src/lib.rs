@@ -50,9 +50,9 @@ fn is_default<T: Default + PartialEq>(t: &T) -> bool {
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-/// A keyboard modifier.
+/// A keyboard modifier key.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize)]
-pub enum ModifierKey {
+pub enum Key {
     /// ⌘
     #[serde(rename = "cmd")]
     Command,
@@ -97,7 +97,6 @@ pub enum Kind {
     FileSkipCheck,
 }
 
-/// The copied or large type text.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, Serialize)]
 struct Text {
     /// Defines the text the user will get when copying the item (⌘+C).
@@ -109,9 +108,8 @@ struct Text {
     large_type: Option<String>,
 }
 
-/// The settings for when a modifier key is pressed.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, Serialize)]
-pub struct ModifierData {
+struct Data {
     /// The subtitle displayed in the result row.
     #[serde(skip_serializing_if = "Option::is_none")]
     subtitle: Option<String>,
@@ -127,6 +125,16 @@ pub struct ModifierData {
     /// Mark whether the item is valid when the modifier is pressed.
     #[serde(skip_serializing_if = "Option::is_none")]
     valid: Option<bool>,
+}
+
+/// The modifier settings for an [`Item`] when a modifier key is pressed.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+pub struct Modifier {
+    /// The modifier key.
+    key: Key,
+
+    /// The modifier data.
+    data: Data,
 }
 
 /// An Alfred script filter item.
@@ -169,7 +177,7 @@ pub struct Item {
 
     /// Control how the modifier keys react.
     #[serde(rename = "mods", skip_serializing_if = "HashMap::is_empty")]
-    modifiers: HashMap<ModifierKey, ModifierData>,
+    modifiers: HashMap<Key, Data>,
 
     /// Defines the copied or large type text for this item.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -280,38 +288,41 @@ impl Default for Kind {
     }
 }
 
-impl ModifierData {
-    /// Create a new modifier data.
+impl Modifier {
+    /// Create a new modifier.
     #[must_use]
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(key: Key) -> Self {
+        Self {
+            key,
+            data: Data::default(),
+        }
     }
 
     /// The subtitle for when this modifier is activated.
     #[must_use]
     pub fn subtitle(mut self, subtitle: impl Into<String>) -> Self {
-        self.subtitle = Some(subtitle.into());
+        self.data.subtitle = Some(subtitle.into());
         self
     }
 
     /// The arg for when this modifier is activated.
     #[must_use]
     pub fn arg(mut self, arg: impl Into<String>) -> Self {
-        self.arg = Some(arg.into());
+        self.data.arg = Some(arg.into());
         self
     }
 
     /// The icon for when this modifier is activated.
     #[must_use]
     pub fn icon(mut self, arg: impl Into<Icon>) -> Self {
-        self.icon = Some(arg.into());
+        self.data.icon = Some(arg.into());
         self
     }
 
     /// Whether this item is valid when the modifier is activated.
     #[must_use]
     pub fn valid(mut self, valid: impl Into<bool>) -> Self {
-        self.valid = Some(valid.into());
+        self.data.valid = Some(valid.into());
         self
     }
 }
@@ -456,12 +467,13 @@ impl Item {
 
     /// Add a modifier key configuration.
     ///
-    /// This gives you control over how the modifier keys react. You can now
-    /// define the valid attribute to mark if the result is valid based on the
-    /// modifier selection and set a different arg to be passed out if actioned
-    /// with the modifier.
+    /// This gives you control over how the modifier keys react. For example you
+    /// can define the valid attribute to mark if the result is valid based on
+    /// the modifier selection and set a different arg to be passed out if
+    /// actioned with the modifier.
     #[must_use]
-    pub fn modifier(mut self, key: ModifierKey, data: ModifierData) -> Self {
+    pub fn modifier(mut self, modifier: Modifier) -> Self {
+        let Modifier { key, data } = modifier;
         self.modifiers.insert(key, data);
         self
     }

@@ -1,4 +1,4 @@
-use powerpack::{Icon, Item, Kind, ModifierData, ModifierKey, Output};
+use powerpack::{Icon, Item, Key, Kind, Modifier, Output};
 
 #[test]
 fn smoke() {
@@ -24,21 +24,12 @@ fn all() {
         .matches("use this to filter")
         .autocomplete("to this")
         .kind(Kind::FileSkipCheck)
-        .copy_text("this text will be copied when with ⌘C")
+        .copy_text("this text will be copied with ⌘C")
         .large_type_text("this text will be displayed with ⌘L")
-        .modifier(
-            ModifierKey::Command,
-            ModifierData::new().subtitle("⌘ changes the subtitle"),
-        )
-        .modifier(
-            ModifierKey::Option,
-            ModifierData::new().arg("/path/to/modified.jpg"),
-        )
-        .modifier(
-            ModifierKey::Control,
-            ModifierData::new().icon(Icon::with_image("/path/to/file.png")),
-        )
-        .modifier(ModifierKey::Shift, ModifierData::new().valid(false))
+        .modifier(Modifier::new(Key::Command).subtitle("⌘ changes the subtitle"))
+        .modifier(Modifier::new(Key::Option).arg("/path/to/modified.jpg"))
+        .modifier(Modifier::new(Key::Control).icon(Icon::with_image("/path/to/file.png")))
+        .modifier(Modifier::new(Key::Shift).valid(false))
         .quicklook_url("https://example.com");
 
     goldie::assert_json!(output([item]));
