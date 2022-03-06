@@ -1,5 +1,33 @@
 # 📝 Release notes
 
+### 0.4.0
+
+*Unreleased*
+
+#### powerpack
+
+- [Improve modifier key ergonomics.][5ef626c]. New `Modifier` type that takes
+  the `Key` on construction. Example usage:
+
+  ```rust
+  use powerpack::{Modifier, Key};
+
+  let item = Item::new("Hello World!")
+      .subtitle("original subtitle")
+      .modifier(
+          Modifier::new(Key::Command)
+              .subtitle("⌘ changes the subtitle")
+      );
+  ```
+
+- [Add `.copy_text()` and `.large_type_text()` setters.][707a28f]
+
+- [The public API no longer uses any clone-on-write types.][ce1b88f]
+
+[5ef626c]: https://github.com/rossmacarthur/powerpack/commit/5ef626c24a3b3fbdfaf2197c72e5ef75dae4d453
+[707a28f]: https://github.com/rossmacarthur/powerpack/commit/707a28f6df773a4e6469f60fca03d6c286a43851
+[ce1b88f]: https://github.com/rossmacarthur/powerpack/commit/ce1b88f931b3f9002d034afd30d943fe321847e3
+
 ### 0.3.1
 
 *February 10th, 2022*

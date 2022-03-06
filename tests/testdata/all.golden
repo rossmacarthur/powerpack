@@ -14,23 +14,23 @@
       "autocomplete": "to this",
       "type": "file:skipcheck",
       "mods": {
-        "cmd": {
-          "subtitle": "⌘ changes the subtitle"
-        },
-        "shift": {
-          "valid": false
+        "alt": {
+          "arg": "/path/to/modified.jpg"
         },
         "ctrl": {
           "icon": {
             "path": "/path/to/file.png"
           }
         },
-        "alt": {
-          "arg": "/path/to/modified.jpg"
+        "cmd": {
+          "subtitle": "⌘ changes the subtitle"
+        },
+        "shift": {
+          "valid": false
         }
       },
       "text": {
-        "copy": "this text will be copied when with ⌘C",
+        "copy": "this text will be copied with ⌘C",
         "largetype": "this text will be displayed with ⌘L"
       },
       "quicklookurl": "https://example.com"
