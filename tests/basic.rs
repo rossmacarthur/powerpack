@@ -42,9 +42,9 @@ fn all() {
     goldie::assert_json!(output([item]));
 }
 
-fn output<'a, I>(items: I) -> Output<'a>
+fn output<I>(items: I) -> Output
 where
-    I: IntoIterator<Item = Item<'a>>,
+    I: IntoIterator<Item = Item>,
 {
     Output::default().items(items)
 }

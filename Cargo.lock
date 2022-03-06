@@ -173,15 +173,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dairy"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33895b00c1f57002ca5c410fbfef6e30263fa6df253e57bfbf867fcecdaa3d3f"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "diff"
 version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -411,7 +402,6 @@ dependencies = [
 name = "powerpack"
 version = "0.3.1"
 dependencies = [
- "dairy",
  "goldie",
  "powerpack-detach",
  "serde",

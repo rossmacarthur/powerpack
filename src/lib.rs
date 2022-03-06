@@ -34,8 +34,8 @@ pub mod env;
 
 use std::collections::HashMap;
 use std::io;
+use std::path::PathBuf;
 
-pub use dairy::{PathBuf, String};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 
@@ -71,20 +71,20 @@ pub enum ModifierKey {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-enum IconInner<'a> {
+enum IconInner {
     /// Load an image from a path.
-    Image(PathBuf<'a>),
+    Image(PathBuf),
     /// An object whose icon should be shown.
-    FileIcon(PathBuf<'a>),
+    FileIcon(PathBuf),
     /// Uniform Type Identifier (UTI) icon.
-    FileType(String<'a>),
+    FileType(String),
 }
 
 /// An icon for an [`Item`].
 ///
 /// If not provided the icon will default to the workflow icon.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Icon<'a>(IconInner<'a>);
+pub struct Icon(IconInner);
 
 /// The type of item.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize)]
@@ -99,29 +99,29 @@ pub enum Kind {
 
 /// The copied or large type text.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
-pub struct Text<'a> {
+pub struct Text {
     /// Defines the text the user will get when copying the item (⌘+C).
-    copy: Option<String<'a>>,
+    copy: Option<String>,
 
     /// Defines the text the user will see in large type (⌘+L).
     #[serde(rename = "largetype")]
-    large_type: Option<String<'a>>,
+    large_type: Option<String>,
 }
 
 /// The settings for when a modifier key is pressed.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, Serialize)]
-pub struct ModifierData<'a> {
+pub struct ModifierData {
     /// The subtitle displayed in the result row.
     #[serde(skip_serializing_if = "Option::is_none")]
-    subtitle: Option<String<'a>>,
+    subtitle: Option<String>,
 
     /// The argument which is passed through to the output.
     #[serde(skip_serializing_if = "Option::is_none")]
-    arg: Option<String<'a>>,
+    arg: Option<String>,
 
     /// The icon displayed in the result row when the modifier is pressed.
     #[serde(skip_serializing_if = "Option::is_none")]
-    icon: Option<Icon<'a>>,
+    icon: Option<Icon>,
 
     /// Mark whether the item is valid when the modifier is pressed.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -130,25 +130,25 @@ pub struct ModifierData<'a> {
 
 /// An Alfred script filter item.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
-pub struct Item<'a> {
+pub struct Item {
     /// The title displayed in the result row.
-    title: String<'a>,
+    title: String,
 
     /// The subtitle displayed in the result row.
     #[serde(skip_serializing_if = "Option::is_none")]
-    subtitle: Option<String<'a>>,
+    subtitle: Option<String>,
 
     /// A unique identifier for the item.
     #[serde(skip_serializing_if = "Option::is_none")]
-    uid: Option<String<'a>>,
+    uid: Option<String>,
 
     /// The argument which is passed through to the output.
     #[serde(skip_serializing_if = "Option::is_none")]
-    arg: Option<String<'a>>,
+    arg: Option<String>,
 
     /// The icon displayed in the result row.
     #[serde(skip_serializing_if = "Option::is_none")]
-    icon: Option<Icon<'a>>,
+    icon: Option<Icon>,
 
     /// Whether this item is valid or not.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -156,11 +156,11 @@ pub struct Item<'a> {
 
     /// Enables you to define what Alfred matches against.
     #[serde(rename = "match", skip_serializing_if = "Option::is_none")]
-    matches: Option<String<'a>>,
+    matches: Option<String>,
 
     /// Populates the search field when the user auto-completes the result.
     #[serde(skip_serializing_if = "Option::is_none")]
-    autocomplete: Option<String<'a>>,
+    autocomplete: Option<String>,
 
     /// The type of item.
     #[serde(rename = "type", skip_serializing_if = "is_default")]
@@ -168,29 +168,29 @@ pub struct Item<'a> {
 
     /// Control how the modifier keys react.
     #[serde(rename = "mods", skip_serializing_if = "HashMap::is_empty")]
-    modifiers: HashMap<ModifierKey, ModifierData<'a>>,
+    modifiers: HashMap<ModifierKey, ModifierData>,
 
     /// Defines the copied or large type text for this item.
     #[serde(skip_serializing_if = "Option::is_none")]
-    text: Option<Text<'a>>,
+    text: Option<Text>,
 
     /// A Quick Look URL which will be shown if the user uses Quick Look (⌘+Y).
     #[serde(rename = "quicklookurl", skip_serializing_if = "Option::is_none")]
-    quicklook_url: Option<String<'a>>,
+    quicklook_url: Option<String>,
 }
 
 /// The output of a workflow (i.e. input for the script filter)
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
-pub struct Output<'a> {
+pub struct Output {
     /// Each row item.
-    items: Vec<Item<'a>>,
+    items: Vec<Item>,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implementations
 ////////////////////////////////////////////////////////////////////////////////
 
-impl Serialize for Icon<'_> {
+impl Serialize for Icon {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         match &self.0 {
             IconInner::Image(path) => {
@@ -214,7 +214,7 @@ impl Serialize for Icon<'_> {
     }
 }
 
-impl<'a> Icon<'a> {
+impl Icon {
     /// Create a new icon using the image at the given path.
     ///
     /// This path can be relative to the workflow directory.
@@ -225,7 +225,7 @@ impl<'a> Icon<'a> {
     /// # use powerpack::Icon;
     /// let icon = Icon::with_image("./assets/icon.png");
     /// ```
-    pub fn with_image(path: impl Into<PathBuf<'a>>) -> Self {
+    pub fn with_image(path: impl Into<PathBuf>) -> Self {
         Self(IconInner::Image(path.into()))
     }
 
@@ -250,7 +250,7 @@ impl<'a> Icon<'a> {
     /// # use powerpack::Icon;
     /// let icon = Icon::with_file_icon("/Applications/Safari.app");
     /// ```
-    pub fn with_file_icon(path: impl Into<PathBuf<'a>>) -> Self {
+    pub fn with_file_icon(path: impl Into<PathBuf>) -> Self {
         Self(IconInner::FileIcon(path.into()))
     }
 
@@ -268,7 +268,7 @@ impl<'a> Icon<'a> {
     /// <img src="https://user-images.githubusercontent.com/17109887/118356177-4695fa80-b574-11eb-8908-c0ccd5f6d23c.png" height="50"/>
     ///
     /// [uti]: https://en.wikipedia.org/wiki/Uniform_Type_Identifier
-    pub fn with_type(uti: impl Into<String<'a>>) -> Self {
+    pub fn with_type(uti: impl Into<String>) -> Self {
         Self(IconInner::FileType(uti.into()))
     }
 }
@@ -281,7 +281,7 @@ impl Default for Kind {
 
 macro_rules! setter {
     ($name:ident) => {
-        setter! { $name, Option<String<'a>> }
+        setter! { $name, Option<String> }
     };
     ($name:ident, Option<$ty:ty>) => {
         #[must_use]
@@ -299,7 +299,7 @@ macro_rules! setter {
     };
 }
 
-impl<'a> ModifierData<'a> {
+impl ModifierData {
     /// Create a new modifier data.
     ///
     /// # Examples
@@ -314,11 +314,11 @@ impl<'a> ModifierData<'a> {
 
     setter! { subtitle }
     setter! { arg }
-    setter! { icon, Option<Icon<'a>> }
+    setter! { icon, Option<Icon> }
     setter! { valid, Option<bool> }
 }
 
-impl<'a> Item<'a> {
+impl Item {
     /// Create a new item.
     ///
     /// # Examples
@@ -327,7 +327,7 @@ impl<'a> Item<'a> {
     /// # use powerpack::Item;
     /// let item = Item::new("something");
     /// ```
-    pub fn new(title: impl Into<String<'a>>) -> Self {
+    pub fn new(title: impl Into<String>) -> Self {
         Self {
             title: title.into(),
             ..Self::default()
@@ -337,26 +337,26 @@ impl<'a> Item<'a> {
     setter! { subtitle }
     setter! { uid }
     setter! { arg }
-    setter! { icon, Option<Icon<'a>> }
+    setter! { icon, Option<Icon> }
     setter! { valid, Option<bool> }
     setter! { matches }
     setter! { autocomplete }
     setter! { kind, Kind }
-    setter! { text, Option<Text<'a>> }
+    setter! { text, Option<Text> }
     setter! { quicklook_url }
 
     #[must_use]
-    pub fn modifier(mut self, key: ModifierKey, data: ModifierData<'a>) -> Self {
+    pub fn modifier(mut self, key: ModifierKey, data: ModifierData) -> Self {
         self.modifiers.insert(key, data);
         self
     }
 }
 
-impl<'a> Output<'a> {
+impl Output {
     #[must_use]
     pub fn items<I>(mut self, iter: I) -> Self
     where
-        I: IntoIterator<Item = Item<'a>>,
+        I: IntoIterator<Item = Item>,
     {
         self.items = iter.into_iter().collect();
         self
@@ -368,9 +368,9 @@ impl<'a> Output<'a> {
 }
 
 /// Shortcut function to output a list of items to stdout.
-pub fn output<'a, I>(items: I) -> serde_json::Result<()>
+pub fn output<I>(items: I) -> serde_json::Result<()>
 where
-    I: IntoIterator<Item = Item<'a>>,
+    I: IntoIterator<Item = Item>,
 {
     Output::default().items(items).write(io::stdout())
 }
