@@ -8,8 +8,8 @@ use std::path::PathBuf;
 
 /// Fetches the environment variable `key` from the current process.
 ///
-/// This function is similar to [`env::var(key).ok()`][env::var] but it also
-/// maps an empty string to `None`.
+/// This function is similar to [`std::env::var(key).ok()`][std::env::var] but
+/// it also maps an empty string to `None`.
 ///
 /// # None
 ///
@@ -17,19 +17,14 @@ use std::path::PathBuf;
 /// - if the environment variable is not present.
 /// - if the environment variable is not valid Unicode.
 /// - if the environment variable is set to an empty string.
-///
-/// # Panics
-///
-/// This function may panic if key is empty, contains an ASCII equals sign `'='`
-/// or the NUL character `'\0'`, or when the value contains the NUL character.
 pub fn var<K: AsRef<OsStr>>(key: K) -> Option<String> {
     env::var(key).ok().filter(|s| !s.is_empty())
 }
 
 /// Fetches the environment variable `key` from the current process.
 ///
-/// This function is similar to [`env::var_os(key)`][env::var] but it also maps
-/// an empty string to `None`.
+/// This function is similar to [`std::env::var_os(key).ok()`][std::env::var]
+/// but it also maps an empty string to `None`.
 ///
 /// # None
 ///
@@ -37,13 +32,8 @@ pub fn var<K: AsRef<OsStr>>(key: K) -> Option<String> {
 /// - if the environment variable is not present.
 /// - if the environment variable is set to an empty string.
 ///
-/// # Panics
-///
-/// This function may panic if key is empty, contains an ASCII equals sign `'='`
-/// or the NUL character `'\0'`, or when the value contains the NUL character.
-///
 /// Note that the method will not check if the environment variable is valid
-/// Unicode. If you want to have an error on invalid UTF-8, use the [`var`]
+/// Unicode. If you want to return `None` on invalid UTF-8, use the [`var`]
 /// function instead.
 pub fn var_os<K: AsRef<OsStr>>(key: K) -> Option<OsString> {
     env::var_os(key).filter(|s| !s.is_empty())
