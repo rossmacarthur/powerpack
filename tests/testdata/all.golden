@@ -1,4 +1,5 @@
 {
+  "rerun": 0.5,
   "items": [
     {
       "title": "Hello world!",
@@ -14,19 +15,19 @@
       "autocomplete": "to this",
       "type": "file:skipcheck",
       "mods": {
-        "alt": {
-          "arg": "/path/to/modified.jpg"
+        "shift": {
+          "valid": false
+        },
+        "cmd": {
+          "subtitle": "⌘ changes the subtitle"
         },
         "ctrl": {
           "icon": {
             "path": "/path/to/file.png"
           }
         },
-        "cmd": {
-          "subtitle": "⌘ changes the subtitle"
-        },
-        "shift": {
-          "valid": false
+        "alt": {
+          "arg": "/path/to/modified.jpg"
         }
       },
       "text": {

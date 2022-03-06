@@ -35,6 +35,7 @@ pub mod env;
 use std::collections::HashMap;
 use std::io;
 use std::path::PathBuf;
+use std::time::Duration;
 
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
@@ -191,6 +192,13 @@ pub struct Item {
 /// The output of a workflow (i.e. input for the script filter)
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
 pub struct Output {
+    /// The interval in seconds after which to rerun the script filter.
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "duration_as_secs"
+    )]
+    rerun: Option<Duration>,
+
     /// Each row item.
     items: Vec<Item>,
 }
@@ -479,6 +487,16 @@ impl Item {
     }
 }
 
+fn duration_as_secs<S>(duration: &Option<Duration>, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match duration {
+        Some(d) => s.serialize_f32(d.as_secs_f32()),
+        None => unreachable!(),
+    }
+}
+
 impl Output {
     /// Create a new output.
     #[must_use]
@@ -486,16 +504,27 @@ impl Output {
         Self::default()
     }
 
-    /// Set the list of items to output.
-    #[must_use]
-    pub fn items<I>(mut self, iter: I) -> Self
-    where
-        I: IntoIterator<Item = Item>,
-    {
-        self.items = iter.into_iter().collect();
+    /// Set the rerun value.
+    ///
+    /// Scripts can be set to re-run automatically after an interval with a
+    /// value of 0.1 to 5.0 seconds. The script will only be re-run if the
+    /// script filter is still active and the user hasn't changed the state of
+    /// the filter by typing and triggering a re-run.
+    pub fn rerun(&mut self, duration: Duration) -> &mut Self {
+        self.rerun = Some(duration);
         self
     }
 
+    /// Extend the list of items to output.
+    pub fn items<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: IntoIterator<Item = Item>,
+    {
+        self.items.extend(iter);
+        self
+    }
+
+    /// Output this script filter to the given writer.
     pub fn write<W: io::Write>(&self, w: W) -> serde_json::Result<()> {
         serde_json::to_writer(w, self)
     }
@@ -506,5 +535,5 @@ pub fn output<I>(items: I) -> serde_json::Result<()>
 where
     I: IntoIterator<Item = Item>,
 {
-    Output::default().items(items).write(io::stdout())
+    Output::new().items(items).write(io::stdout())
 }

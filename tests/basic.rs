@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use powerpack::{Icon, Item, Key, Kind, Modifier, Output};
 
 #[test]
@@ -10,7 +12,9 @@ fn smoke() {
         .autocomplete("~/Desktop")
         .icon(Icon::with_file_icon("~/Desktop"));
 
-    goldie::assert_json!(output([item]));
+    let mut output = Output::new();
+    output.items([item]);
+    goldie::assert_json!(output);
 }
 
 #[test]
@@ -32,12 +36,7 @@ fn all() {
         .modifier(Modifier::new(Key::Shift).valid(false))
         .quicklook_url("https://example.com");
 
-    goldie::assert_json!(output([item]));
-}
-
-fn output<I>(items: I) -> Output
-where
-    I: IntoIterator<Item = Item>,
-{
-    Output::default().items(items)
+    let mut output = Output::new();
+    output.rerun(Duration::from_millis(500)).items([item]);
+    goldie::assert_json!(output);
 }
