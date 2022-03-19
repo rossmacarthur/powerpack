@@ -322,15 +322,15 @@ impl Modifier {
 
     /// The icon for when this modifier is activated.
     #[must_use]
-    pub fn icon(mut self, arg: impl Into<Icon>) -> Self {
-        self.data.icon = Some(arg.into());
+    pub fn icon(mut self, arg: Icon) -> Self {
+        self.data.icon = Some(arg);
         self
     }
 
     /// Whether this item is valid when the modifier is activated.
     #[must_use]
-    pub fn valid(mut self, valid: impl Into<bool>) -> Self {
-        self.data.valid = Some(valid.into());
+    pub fn valid(mut self, valid: bool) -> Self {
+        self.data.valid = Some(valid);
         self
     }
 }
@@ -386,8 +386,8 @@ impl Item {
     /// Workflows are run from their workflow folder, so you can reference icons
     /// stored in your workflow relatively.
     #[must_use]
-    pub fn icon(mut self, icon: impl Into<Icon>) -> Self {
-        self.icon = Some(icon.into());
+    pub fn icon(mut self, icon: Icon) -> Self {
+        self.icon = Some(icon);
         self
     }
 
@@ -401,8 +401,8 @@ impl Item {
     /// If you exclude the valid attribute, Alfred assumes that your item is
     /// valid.
     #[must_use]
-    pub fn valid(mut self, valid: impl Into<bool>) -> Self {
-        self.valid = Some(valid.into());
+    pub fn valid(mut self, valid: bool) -> Self {
+        self.valid = Some(valid);
         self
     }
 
@@ -434,8 +434,8 @@ impl Item {
 
     /// Set the type of item.
     #[must_use]
-    pub fn kind(mut self, kind: impl Into<Kind>) -> Self {
-        self.kind = kind.into();
+    pub fn kind(mut self, kind: Kind) -> Self {
+        self.kind = kind;
         self
     }
 
