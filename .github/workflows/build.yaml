@@ -67,10 +67,7 @@ jobs:
     - name: Publish
       env:
         CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
-      run: |
-        cargo publish --manifest-path crates/detach/Cargo.toml
-        cargo publish
-        cargo publish --manifest-path crates/cli/Cargo.toml
+      run: bash ci/publish-workspace.sh
 
   release:
     needs: check-version
