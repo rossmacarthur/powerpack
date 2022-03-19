@@ -46,6 +46,35 @@ powerpack package
 
 The release will be available at `target/workflow/myworkflow.alfredworkflow`.
 
+## 🤸 Usage
+
+The following is a "Hello World!" Alfred workflow built using `powerpack`.
+
+```rust
+use std::env;
+use std::error::Error;
+use std::iter;
+
+fn main() -> Result<(), Box<dyn Error>> {
+    // Alfred passes in a single argument for the user query.
+    let arg = env::args().nth(1);
+    let query = arg.as_deref().unwrap_or("");
+
+    // Create an item to show in the Alfred drop down.
+    let item = powerpack::Item::new("Hello World!")
+        .subtitle(format!("Your query was '{}'", query));
+
+    // Output the item to Alfred!
+    powerpack::output(iter::once(item))?;
+
+    Ok(())
+}
+```
+
+This would render an item as shown.
+
+![image](https://user-images.githubusercontent.com/17109887/159137101-105d0110-69c7-4f3e-a9da-250fdfeed431.png)
+
 ## 👷 GitHub Action
 
 [`setup-crate`][setup] can be used to install `powerpack` in a GitHub Actions

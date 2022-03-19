@@ -6,6 +6,8 @@
 
 #### powerpack
 
+- [Support `rerun` script filter parameter.][9db2b1e]
+
 - [Improve modifier key ergonomics.][5ef626c]. New `Modifier` type that takes
   the `Key` on construction. Example usage:
 
@@ -27,6 +29,7 @@
 [5ef626c]: https://github.com/rossmacarthur/powerpack/commit/5ef626c24a3b3fbdfaf2197c72e5ef75dae4d453
 [707a28f]: https://github.com/rossmacarthur/powerpack/commit/707a28f6df773a4e6469f60fca03d6c286a43851
 [ce1b88f]: https://github.com/rossmacarthur/powerpack/commit/ce1b88f931b3f9002d034afd30d943fe321847e3
+[9db2b1e]: https://github.com/rossmacarthur/powerpack/commit/9db2b1e05ef0cf7fd4a24de5e14dd8f68aad5f92
 
 #### powerpack-cli
 
