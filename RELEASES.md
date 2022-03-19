@@ -2,7 +2,7 @@
 
 ### 0.4.0
 
-*Unreleased*
+*March 19th, 2022*
 
 #### powerpack
 
