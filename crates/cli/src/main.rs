@@ -97,14 +97,26 @@ fn build(bins: Vec<String>, release: bool, target: Option<String>) -> Result<()>
 
         let src = src_dir.join(binary_name);
         let dst = workflow_dir.join(binary_name);
+        let removed = fs::remove_file(&dst).is_ok();
         fs::copy(&src, &dst)?;
-        print(
-            "Copied",
-            format!(
-                "binary to `{}`",
-                dst.strip_prefix(env::current_dir()?)?.display()
-            ),
-        );
+
+        if removed {
+            print(
+                "Replaced",
+                format!(
+                    "binary at `{}`",
+                    dst.strip_prefix(env::current_dir()?)?.display()
+                ),
+            );
+        } else {
+            print(
+                "Copied",
+                format!(
+                    "binary to `{}`",
+                    dst.strip_prefix(env::current_dir()?)?.display()
+                ),
+            );
+        }
     }
 
     Ok(())

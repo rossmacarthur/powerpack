@@ -1,5 +1,13 @@
 # 📝 Release notes
 
+### 0.4.1
+
+*Unreleased*
+
+#### powerpack-cli
+
+- [Fix copying under latest macOS.](#placeholder)
+
 ### 0.4.0
 
 *March 19th, 2022*
