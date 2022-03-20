@@ -3,8 +3,8 @@
 set -ex
 
 fetch_version() {
-    curl -fsSL "https://raw.githubusercontent.com/rust-lang/crates.io-index/master/po/we/$1" \
-        | tail -n1 | jq -r '.vers'
+    curl -fsSL -H 'User-Agent: GitHub Actions (github.com/rossmacarthur/powerpack)' \
+        "https://crates.io/api/v1/crates/$1" | jq -r '.versions[].num' | head -n1
 }
 
 if [ "$CI" != true ]; then
@@ -17,7 +17,7 @@ VERSION="${GITHUB_REF#refs/tags/}"
 cargo publish --manifest-path crates/detach/Cargo.toml
 
 while [ "$(fetch_version powerpack-detach)" != "$VERSION" ]; do
-    sleep 30
+    sleep 15
 done
 
 cargo publish
