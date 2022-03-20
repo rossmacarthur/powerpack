@@ -8,7 +8,7 @@
 
 - [Fix copying under latest macOS.][38943ba]
 
-https://github.com/rossmacarthur/powerpack/commit/38943ba0f44b59052b37d1ae1815f9baf31ab068
+[38943ba]: https://github.com/rossmacarthur/powerpack/commit/38943ba0f44b59052b37d1ae1815f9baf31ab068
 
 ### 0.4.0
 
