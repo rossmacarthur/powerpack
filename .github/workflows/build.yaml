@@ -50,6 +50,7 @@ jobs:
           grep '^version = "${{ steps.version.outputs.value }}"$' Cargo.toml
           grep '^version = "${{ steps.version.outputs.value }}"$' crates/cli/Cargo.toml
           grep '^version = "${{ steps.version.outputs.value }}"$' crates/detach/Cargo.toml
+          grep '^version = "${{ steps.version.outputs.value }}"$' crates/env/Cargo.toml
 
   publish:
     needs: check-version

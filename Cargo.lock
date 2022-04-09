@@ -404,6 +404,7 @@ version = "0.4.1"
 dependencies = [
  "goldie",
  "powerpack-detach",
+ "powerpack-env",
  "serde",
  "serde_json",
 ]
@@ -433,6 +434,10 @@ dependencies = [
  "libc",
  "log",
 ]
+
+[[package]]
+name = "powerpack-env"
+version = "0.4.1"
 
 [[package]]
 name = "pretty_assertions"

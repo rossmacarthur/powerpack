@@ -30,8 +30,6 @@
 //! # }
 //! ```
 
-pub mod env;
-
 use std::collections::HashMap;
 use std::io;
 use std::path::PathBuf;
@@ -42,6 +40,9 @@ use serde::{Serialize, Serializer};
 
 #[cfg(feature = "detach")]
 pub use powerpack_detach as detach;
+
+#[cfg(feature = "env")]
+pub use powerpack_env as env;
 
 fn is_default<T: Default + PartialEq>(t: &T) -> bool {
     t == &T::default()

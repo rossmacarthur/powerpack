@@ -1,4 +1,4 @@
-//! Environment variables in workflows.
+//! Useful environment variables in Alfred workflows.
 //!
 //! See <https://www.alfredapp.com/help/workflows/script-environment-variables/>
 

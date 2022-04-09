@@ -15,6 +15,7 @@ fi
 VERSION="${GITHUB_REF#refs/tags/}"
 
 cargo publish --manifest-path crates/detach/Cargo.toml
+cargo publish --manifest-path crates/env/Cargo.toml
 
 while [ "$(fetch_version powerpack-detach)" != "$VERSION" ]; do
     sleep 15

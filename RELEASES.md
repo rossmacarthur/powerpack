@@ -1,5 +1,15 @@
 # 📝 Release notes
 
+### 0.4.2
+
+*Unreleased*
+
+#### powerpack
+
+- [Convert `env` module into a `powerpack-env` crate.](#todo) Re-exported as
+  `powerpack::env` when the `env` feature is enabled in `powerpack`. This
+  feature is enabled by default.
+
 ### 0.4.1
 
 *March 20th, 2022*
