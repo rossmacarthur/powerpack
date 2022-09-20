@@ -187,7 +187,9 @@ fn package() -> Result<()> {
         "Packaged",
         format!(
             "workflow at `{}`",
-            dst.strip_prefix(env::current_dir()?)?.display()
+            dst.strip_prefix(env::current_dir()?)
+                .unwrap_or(dst)
+                .display()
         ),
     );
 
