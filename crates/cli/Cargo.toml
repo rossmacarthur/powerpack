@@ -1,6 +1,6 @@
 [package]
 name = "powerpack-cli"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["Ross MacArthur <ross@macarthur.io>"]
 edition = "2018"
 description = "⚡ Supercharge your Alfred workflows by building them in Rust!"

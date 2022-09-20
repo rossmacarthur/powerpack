@@ -400,7 +400,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "goldie",
  "powerpack-detach",
@@ -411,7 +411,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack-cli"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "anyhow",
  "atty",
@@ -429,7 +429,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack-detach"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "libc",
  "log",
@@ -437,7 +437,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack-env"
-version = "0.4.1"
+version = "0.4.2"
 
 [[package]]
 name = "pretty_assertions"

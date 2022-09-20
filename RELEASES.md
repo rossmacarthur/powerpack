@@ -2,7 +2,7 @@
 
 ### 0.4.2
 
-*Unreleased*
+*September 20th, 2022*
 
 #### powerpack-cli
 
