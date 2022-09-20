@@ -4,6 +4,19 @@
 
 *Unreleased*
 
+#### powerpack-cli
+
+- [Fix for an empty syncfolder in Alfred config.][#8] We now use the default in
+  this case.
+
+- [Fix for when target dir is outside of current dir.][#9]
+
+Thanks [@knutwalker](https://github.com/knutwalker) for these fixes!
+
+[#8]: https://github.com/rossmacarthur/powerpack/pull/8
+[#9]: https://github.com/rossmacarthur/powerpack/pull/9
+
+
 #### powerpack
 
 - [Convert `env` module into a `powerpack-env` crate.](#todo) Re-exported as
@@ -97,8 +110,8 @@
 
 #### powerpack-cli
 
-- [Support multiple binaries.][#5] <small>(Contributed by
-  [**@danbi2990**](https://github.com/danbi2990).)</small>
+- [Support multiple binaries.][#5]
+  Thanks [@danbi2990](https://github.com/danbi2990) for this feature!
 
 [#5]: https://github.com/rossmacarthur/powerpack/pull/5
 
