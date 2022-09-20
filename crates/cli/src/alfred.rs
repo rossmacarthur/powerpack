@@ -97,9 +97,12 @@ fn sync_directory() -> Result<PathBuf> {
         .into_dictionary()
         .context("expected dictionary")?
         .remove("syncfolder")
+        .map(|dir| dir.into_string().context("expected string"))
+        .transpose()?
+        .filter(|dir| !dir.trim().is_empty())
     {
         Some(dir) => {
-            let dir = PathBuf::from(dir.into_string().context("expected string")?);
+            let dir = PathBuf::from(dir);
             if let Ok(p) = dir.strip_prefix("~") {
                 home.join(p)
             } else {
