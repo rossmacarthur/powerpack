@@ -123,7 +123,7 @@ fn build(bins: Vec<String>, release: bool, target: Option<String>) -> Result<()>
 }
 
 fn find_link(workflow_dir: &Path, workflows_dir: &Path) -> Result<Option<PathBuf>> {
-    for entry in fs::read_dir(&workflows_dir)?
+    for entry in fs::read_dir(workflows_dir)?
         .collect::<Result<Vec<_>, _>>()?
         .into_iter()
         .filter(|entry| entry.file_type().unwrap().is_symlink())

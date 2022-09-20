@@ -3,7 +3,6 @@ name: build
 on: [push, pull_request]
 
 env:
-  RUSTFLAGS: --deny warnings
   CRATE: powerpack
 
 jobs:
@@ -13,6 +12,9 @@ jobs:
     strategy:
       matrix:
         toolchain: [stable, beta, nightly]
+
+    env:
+      RUSTFLAGS: --deny warnings
 
     steps:
     - uses: actions/checkout@v2
@@ -27,6 +29,7 @@ jobs:
       run: cargo fmt -- --check
 
     - name: Clippy
+      continue-on-error: ${{ matrix.toolchain == 'nightly' }}
       run: cargo clippy --workspace --all-targets
 
     - name: Test

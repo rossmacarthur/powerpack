@@ -119,7 +119,7 @@ pub fn workflows_directory() -> Result<PathBuf> {
 }
 
 pub fn package(src_dir: &Path, dst: &Path) -> Result<()> {
-    let file = fs::File::create(&dst)?;
+    let file = fs::File::create(dst)?;
     let mut zip = zip::ZipWriter::new(file);
 
     for entry in src_dir.read_dir()? {
