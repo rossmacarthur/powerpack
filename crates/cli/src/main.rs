@@ -53,7 +53,7 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
         .append(true)
         .open(manifest_dir.join(".gitignore"))
     {
-        writeln!(file, "/workflow/{}", package_name)?;
+        writeln!(file, "/workflow/{package_name}")?;
     }
 
     // Add dependencies to Cargo manifest.
@@ -66,7 +66,7 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
 
     // Write our custom `main.rs`
     let main = manifest_dir.join("src").join("main.rs");
-    fs::write(&main, include_str!("main.template.rs"))?;
+    fs::write(main, include_str!("main.template.rs"))?;
     print("Finished", "created example script filter workflow");
 
     Ok(())
@@ -98,7 +98,7 @@ fn build(bins: Vec<String>, release: bool, target: Option<String>) -> Result<()>
         let src = src_dir.join(binary_name);
         let dst = workflow_dir.join(binary_name);
         let removed = fs::remove_file(&dst).is_ok();
-        fs::copy(&src, &dst)?;
+        fs::copy(src, &dst)?;
 
         if removed {
             print(
@@ -158,7 +158,7 @@ fn link(force: bool) -> Result<()> {
     }
 
     let uid = uuid::Uuid::new_v4().to_string().to_uppercase();
-    let dst = workflows_dir.join(&format!("user.workflow.{}", uid));
+    let dst = workflows_dir.join(format!("user.workflow.{uid}"));
     symlink(&workflow_dir, &dst)?;
     print(
         "Symlinked",

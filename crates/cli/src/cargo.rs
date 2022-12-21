@@ -121,7 +121,7 @@ pub fn metadata() -> Result<Metadata> {
 /// Read the Cargo manifest.
 pub fn read_manifest(dir: &Path) -> Result<toml::Document> {
     let manifest_path = dir.join("Cargo.toml");
-    let contents = fs::read_to_string(&manifest_path)?;
+    let contents = fs::read_to_string(manifest_path)?;
     let doc = toml::Document::from_str(&contents)?;
     Ok(doc)
 }
@@ -129,6 +129,6 @@ pub fn read_manifest(dir: &Path) -> Result<toml::Document> {
 /// Write a Cargo manifest.
 pub fn write_manifest(dir: &Path, doc: &toml::Document) -> Result<()> {
     let path = dir.join("Cargo.toml");
-    fs::write(&path, &doc.to_string())?;
+    fs::write(path, doc.to_string())?;
     Ok(())
 }

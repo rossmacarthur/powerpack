@@ -92,7 +92,7 @@ pub fn build_info_plist(info: &WorkflowInfo) -> plist::Value {
 fn sync_directory() -> Result<PathBuf> {
     let home = home::home_dir().context("failed to get home directory")?;
     let prefs = home.join("Library/Preferences/com.runningwithcrayons.Alfred-Preferences.plist");
-    let prefs = plist::Value::from_file(&prefs)?;
+    let prefs = plist::Value::from_file(prefs)?;
     let dir = match prefs
         .into_dictionary()
         .context("expected dictionary")?
