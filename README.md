@@ -2,7 +2,7 @@
 
 [![Crates.io Version](https://img.shields.io/crates/v/powerpack.svg)](https://crates.io/crates/powerpack)
 [![Docs.rs Latest](https://img.shields.io/badge/docs.rs-latest-blue.svg)](https://docs.rs/powerpack)
-[![Build Status](https://img.shields.io/github/workflow/status/rossmacarthur/powerpack/build/trunk)](https://github.com/rossmacarthur/powerpack/actions?query=workflow%3Abuild)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/rossmacarthur/powerpack/build.yaml?branch=trunk)](https://github.com/rossmacarthur/powerpack/actions/workflows/build.yaml?query=branch%3Atrunk)
 
 Supercharge your [Alfred 🎩][alfred] workflows by building them in Rust 🦀!
 
