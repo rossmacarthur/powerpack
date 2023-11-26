@@ -22,6 +22,7 @@ pub enum Mode {
 #[derive(Debug)]
 pub struct Metadata {
     pub workspace_dir: PathBuf,
+    pub manifest_dir: PathBuf,
     pub target_dir: PathBuf,
     pub package_name: String,
     pub binary_names: Vec<String>,
@@ -72,8 +73,16 @@ where
 }
 
 /// Run a `cargo build` command.
-pub fn build(mode: Mode, bins: &[String], target: Option<&str>) -> Result<()> {
+pub fn build(
+    mode: Mode,
+    package: Option<&str>,
+    bins: &[String],
+    target: Option<&str>,
+) -> Result<()> {
     let mut cmd = Cargo::new("build");
+    if let Some(package) = package {
+        cmd.arg("--package").arg(package);
+    }
     if let Mode::Release = mode {
         cmd.arg("--release");
     }
@@ -89,7 +98,7 @@ pub fn build(mode: Mode, bins: &[String], target: Option<&str>) -> Result<()> {
 }
 
 /// Run a `cargo metadata` command.
-pub fn metadata() -> Result<Metadata> {
+pub fn metadata(package: Option<&str>) -> Result<Metadata> {
     let metadata::Metadata {
         packages,
         workspace_root,
@@ -98,12 +107,19 @@ pub fn metadata() -> Result<Metadata> {
         ..
     } = metadata::MetadataCommand::new().exec()?;
 
-    let root = move || {
-        let root = resolve.as_ref()?.root.as_ref()?;
-        packages.into_iter().find(|pkg| &pkg.id == root)
+    let pkg = match package {
+        Some(n) => packages
+            .into_iter()
+            .find(|pkg| pkg.name == n)
+            .with_context(|| format!("package not found: `{}`", n))?,
+        None => (move || {
+            let root = resolve.as_ref()?.root.as_ref()?;
+            packages.into_iter().find(|pkg| &pkg.id == root)
+        })()
+        .context("no root package")?,
     };
-    let package = root().context("no root package")?;
-    let binary_names = package
+
+    let binary_names = pkg
         .targets
         .into_iter()
         .filter(|target| target.kind.iter().any(|kind| kind == "bin"))
@@ -112,8 +128,9 @@ pub fn metadata() -> Result<Metadata> {
 
     Ok(Metadata {
         workspace_dir: workspace_root.into(),
+        manifest_dir: pkg.manifest_path.parent().unwrap().into(),
         target_dir: target_directory.into(),
-        package_name: package.name,
+        package_name: pkg.name,
         binary_names,
     })
 }

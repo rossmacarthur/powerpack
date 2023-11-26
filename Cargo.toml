@@ -1,3 +1,6 @@
+[workspace]
+members = ["crates/*", "examples/*"]
+
 [package]
 name = "powerpack"
 version = "0.4.2"
@@ -23,6 +26,3 @@ goldie = "0.2.0"
 default = ["env"]
 detach = ["powerpack-detach"]
 env = ["powerpack-env"]
-
-[workspace]
-members = ["crates/*"]

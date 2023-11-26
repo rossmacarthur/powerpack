@@ -3,6 +3,7 @@ mod cargo;
 
 use std::env;
 use std::ffi::OsString;
+use std::fmt;
 use std::fs;
 use std::io::prelude::*;
 use std::os::unix::fs::symlink;
@@ -18,6 +19,14 @@ fn print(header: &str, message: impl AsRef<str>) {
         println!("{:>12} {}", header.bold().green(), message.as_ref());
     } else {
         println!("{:>12} {}", header, message.as_ref());
+    }
+}
+
+fn print_warning(header: &str, message: impl AsRef<str>) {
+    if atty::is(atty::Stream::Stdout) {
+        eprintln!("{:>12} {}", header.bold().yellow(), message.as_ref());
+    } else {
+        eprintln!("{:>12} {}", header, message.as_ref());
     }
 }
 
@@ -73,16 +82,21 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
 }
 
 /// Build the workflow.
-fn build(bins: Vec<String>, release: bool, target: Option<String>) -> Result<()> {
+fn build(
+    package: Option<&str>,
+    bins: Vec<String>,
+    release: bool,
+    target: Option<&str>,
+) -> Result<()> {
     let mode = if release {
         cargo::Mode::Release
     } else {
         cargo::Mode::Debug
     };
-    cargo::build(mode, &bins, target.as_deref())?;
+    cargo::build(mode, package, &bins, target)?;
 
-    let metadata = cargo::metadata()?;
-    let workflow_dir = metadata.workspace_dir.join("workflow");
+    let metadata = cargo::metadata(package)?;
+    let workflow_dir = metadata.manifest_dir.join("workflow");
     fs::create_dir_all(&workflow_dir)?;
 
     let src_dir = match target {
@@ -90,32 +104,30 @@ fn build(bins: Vec<String>, release: bool, target: Option<String>) -> Result<()>
         None => metadata.target_dir.join(mode.dir()),
     };
 
-    for binary_name in &metadata.binary_names {
-        if !bins.is_empty() && !bins.contains(binary_name) {
-            continue;
-        }
+    let binary_names: Vec<_> = metadata
+        .binary_names
+        .iter()
+        .filter(|binary_name| bins.is_empty() || bins.contains(binary_name))
+        .collect();
 
+    if binary_names.is_empty() {
+        print_warning(
+            "Warning",
+            format!("package `{}` has no binaries", metadata.package_name),
+        );
+        return Ok(());
+    }
+
+    for binary_name in &binary_names {
         let src = src_dir.join(binary_name);
         let dst = workflow_dir.join(binary_name);
         let removed = fs::remove_file(&dst).is_ok();
         fs::copy(src, &dst)?;
 
         if removed {
-            print(
-                "Replaced",
-                format!(
-                    "binary at `{}`",
-                    dst.strip_prefix(env::current_dir()?)?.display()
-                ),
-            );
+            print("Replaced", format!("binary at `{}`", display_path(&dst)));
         } else {
-            print(
-                "Copied",
-                format!(
-                    "binary to `{}`",
-                    dst.strip_prefix(env::current_dir()?)?.display()
-                ),
-            );
+            print("Copied", format!("binary to `{}`", display_path(&dst)));
         }
     }
 
@@ -137,9 +149,9 @@ fn find_link(workflow_dir: &Path, workflows_dir: &Path) -> Result<Option<PathBuf
 }
 
 /// Link the workflow.
-fn link(force: bool) -> Result<()> {
-    let metadata = cargo::metadata()?;
-    let workflow_dir = metadata.workspace_dir.join("workflow");
+fn link(package: Option<&str>, force: bool) -> Result<()> {
+    let metadata = cargo::metadata(package)?;
+    let workflow_dir = metadata.manifest_dir.join("workflow");
     let workflows_dir = alfred::workflows_directory()?;
 
     if let Some(path) = find_link(&workflow_dir, &workflows_dir)? {
@@ -168,9 +180,9 @@ fn link(force: bool) -> Result<()> {
 }
 
 /// Package the workflow into a `.alfredworkflow` file.
-fn package() -> Result<()> {
-    let metadata = cargo::metadata()?;
-    let workflow_dir = metadata.workspace_dir.join("workflow");
+fn build_package(package: Option<&str>) -> Result<()> {
+    let metadata = cargo::metadata(package)?;
+    let workflow_dir = metadata.manifest_dir.join("workflow");
     let dist_dir = metadata.target_dir.join("workflow");
     let mut package_name = metadata.package_name;
 
@@ -183,17 +195,17 @@ fn package() -> Result<()> {
 
     fs::create_dir_all(&dist_dir)?;
     alfred::package(&workflow_dir, dst)?;
-    print(
-        "Packaged",
-        format!(
-            "workflow at `{}`",
-            dst.strip_prefix(env::current_dir()?)
-                .unwrap_or(dst)
-                .display()
-        ),
-    );
+    print("Packaged", format!("workflow at `{}`", display_path(dst)));
 
     Ok(())
+}
+
+/// Displays a path relative to the current working directory.
+fn display_path(path: &Path) -> impl fmt::Display + '_ {
+    let Ok(cwd) = env::current_dir() else {
+        return path.display();
+    };
+    path.strip_prefix(cwd).unwrap_or(path).display()
 }
 
 #[derive(Debug, Parser)]
@@ -218,6 +230,10 @@ enum Command {
 
     /// Build the workflow.
     Build {
+        /// Package to build.
+        #[clap(long, short, value_name = "SPEC")]
+        package: Option<String>,
+
         /// Build only the specified binary.
         #[clap(long, value_name = "NAME")]
         bin: Vec<String>,
@@ -233,6 +249,10 @@ enum Command {
 
     /// Symlink the workflow directory to the Alfred workflow directory.
     Link {
+        /// Package to build.
+        #[clap(long, short, value_name = "SPEC")]
+        package: Option<String>,
+
         /// Delete original symlink and recreate the symlink.
         #[clap(long)]
         force: bool,
@@ -240,6 +260,10 @@ enum Command {
 
     /// Package the workflow as an `.alfredworkflow` file.
     Package {
+        /// Package to build.
+        #[clap(long, short, value_name = "SPEC")]
+        package: Option<String>,
+
         /// Package only the specified binary.
         #[clap(long, value_name = "NAME")]
         bin: Vec<String>,
@@ -277,18 +301,23 @@ fn main() -> anyhow::Result<()> {
             init(path, name)?;
         }
         Command::Build {
+            package,
             bin,
             release,
             target,
         } => {
-            build(bin, release, target)?;
+            build(package.as_deref(), bin, release, target.as_deref())?;
         }
-        Command::Link { force } => {
-            link(force)?;
+        Command::Link { package, force } => {
+            link(package.as_deref(), force)?;
         }
-        Command::Package { bin, target } => {
-            build(bin, true, target)?;
-            package()?;
+        Command::Package {
+            package,
+            bin,
+            target,
+        } => {
+            build(package.as_deref(), bin, true, target.as_deref())?;
+            build_package(package.as_deref())?;
         }
     }
     Ok(())
