@@ -200,6 +200,10 @@ pub struct Output {
     )]
     rerun: Option<Duration>,
 
+    /// Whether to skip Alfred's knowledge for this output.
+    #[serde(rename = "skipknowledge", skip_serializing_if = "Option::is_none")]
+    skip_knowledge: Option<bool>,
+
     /// Each row item.
     items: Vec<Item>,
 }
@@ -513,6 +517,16 @@ impl Output {
     /// the filter by typing and triggering a re-run.
     pub fn rerun(&mut self, duration: Duration) -> &mut Self {
         self.rerun = Some(duration);
+        self
+    }
+
+    /// Set the skip knowledge value.
+    ///
+    /// This allows you to set `uid` and preserve the item order while allowing
+    /// Alfred to retain knowledge of your items, like your current selection
+    /// during a re-run.
+    pub fn skip_knowledge(&mut self, skip_knowledge: bool) -> &mut Self {
+        self.skip_knowledge = Some(skip_knowledge);
         self
     }
 
