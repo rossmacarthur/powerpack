@@ -52,6 +52,16 @@ fn is_default<T: Default + PartialEq>(t: &T) -> bool {
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
+/// An arg, either a string or a sequence of strings.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[serde(untagged)]
+enum Arg {
+    /// A single string.
+    One(String),
+    /// A sequence of strings.
+    Many(Vec<String>),
+}
+
 /// A keyboard modifier key.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize)]
 pub enum Key {
@@ -155,7 +165,7 @@ pub struct Item {
 
     /// The argument which is passed through to the output.
     #[serde(skip_serializing_if = "Option::is_none")]
-    arg: Option<String>,
+    arg: Option<Arg>,
 
     /// The icon displayed in the result row.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -382,7 +392,21 @@ impl Item {
     /// has selected.
     #[must_use]
     pub fn arg(mut self, arg: impl Into<String>) -> Self {
-        self.arg = Some(arg.into());
+        self.arg = Some(Arg::One(arg.into()));
+        self
+    }
+
+    /// Set the arguments which are passed through the workflow to the connected
+    /// output action.
+    ///
+    /// Same as [`arg`], but allows you to pass multiple arguments.
+    #[must_use]
+    pub fn args<I, J>(mut self, args: impl IntoIterator<Item = impl Into<String>>) -> Self
+    where
+        I: IntoIterator<Item = J>,
+        J: Into<String>,
+    {
+        self.arg = Some(Arg::Many(args.into_iter().map(Into::into).collect()));
         self
     }
 
