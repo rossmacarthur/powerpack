@@ -15,26 +15,36 @@
       "autocomplete": "to this",
       "type": "file:skipcheck",
       "mods": {
-        "shift": {
-          "valid": false
-        },
         "cmd": {
           "subtitle": "⌘ changes the subtitle"
+        },
+        "alt": {
+          "arg": "/path/to/modified.jpg"
         },
         "ctrl": {
           "icon": {
             "path": "/path/to/file.png"
           }
         },
-        "alt": {
-          "arg": "/path/to/modified.jpg"
+        "shift": {
+          "valid": false
         }
       },
       "text": {
         "copy": "this text will be copied with ⌘C",
         "largetype": "this text will be displayed with ⌘L"
       },
-      "quicklookurl": "https://example.com"
+      "quicklookurl": "https://example.com",
+      "action": {
+        "auto": "~/Pictures",
+        "file": "~/Desktop",
+        "text": [
+          "one",
+          "two",
+          "three"
+        ],
+        "url": "https://www.alfredapp.com"
+      }
     }
   ]
 }

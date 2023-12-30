@@ -38,6 +38,9 @@ use std::time::Duration;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 
+pub use serde_json::json as value;
+pub use serde_json::Value;
+
 #[cfg(feature = "detach")]
 pub use powerpack_detach as detach;
 
@@ -198,6 +201,9 @@ pub struct Item {
     /// A Quick Look URL which will be shown if the user uses Quick Look (⌘+Y).
     #[serde(rename = "quicklookurl", skip_serializing_if = "Option::is_none")]
     quicklook_url: Option<String>,
+
+    #[serde(skip_serializing_if = "Value::is_null")]
+    action: Value,
 }
 
 /// The output of a workflow (i.e. input for the script filter)
@@ -399,7 +405,7 @@ impl Item {
     /// Set the arguments which are passed through the workflow to the connected
     /// output action.
     ///
-    /// Same as [`arg`], but allows you to pass multiple arguments.
+    /// Same as [`arg`][Self::arg], but allows you to pass multiple arguments.
     #[must_use]
     pub fn args<I, J>(mut self, args: impl IntoIterator<Item = impl Into<String>>) -> Self
     where
@@ -512,6 +518,48 @@ impl Item {
     pub fn modifier(mut self, modifier: Modifier) -> Self {
         let Modifier { key, data } = modifier;
         self.modifiers.insert(key, data);
+        self
+    }
+
+    /// Set the Universal Action item(s).
+    ///
+    /// This element defines the Universal Action items used when actioning the
+    /// result, and overrides the [`arg`][Self::arg] being used for actioning.
+    /// The action key can take a string or array for simple types, and the
+    /// content type will automatically be derived by Alfred to file, url, or
+    /// text.
+    ///
+    /// # Examples
+    ///
+    /// Single item:
+    ///
+    /// ```
+    /// # use powerpack::Item;
+    /// let item = Item::new("Title").action("Alfred is Great");
+    /// ```
+    ///
+    /// Multiple Items:
+    ///
+    /// ```
+    /// # use powerpack::{value, Item};
+    /// let item = Item::new("Title").action(value!(["Alfred is Great", "I use him all day long"]));
+    /// ```
+    ///
+    /// For control over the content type of the action, you can use an object
+    /// with typed keys:
+    ///
+    /// ```
+    /// # use powerpack::{value, Item};
+    /// let item = Item::new("Title").action(value!({
+    ///     "text": ["one", "two", "three"],
+    ///     "url": "https://www.alfredapp.com",
+    ///     "file": "~/Desktop",
+    ///     "auto": "~/Pictures"
+    /// }));
+    /// ```
+    ///
+    pub fn action(mut self, action: impl Into<Value>) -> Self {
+        self.action = action.into();
         self
     }
 }

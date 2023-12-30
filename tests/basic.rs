@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use powerpack::{Icon, Item, Key, Kind, Modifier, Output};
+use powerpack::{value, Icon, Item, Key, Kind, Modifier, Output};
 
 #[test]
 fn smoke() {
@@ -34,7 +34,13 @@ fn all() {
         .modifier(Modifier::new(Key::Option).arg("/path/to/modified.jpg"))
         .modifier(Modifier::new(Key::Control).icon(Icon::with_image("/path/to/file.png")))
         .modifier(Modifier::new(Key::Shift).valid(false))
-        .quicklook_url("https://example.com");
+        .quicklook_url("https://example.com")
+        .action(value!({
+            "text": ["one", "two", "three"],
+            "url": "https://www.alfredapp.com",
+            "file": "~/Desktop",
+            "auto": "~/Pictures"
+        }));
 
     let mut output = Output::new();
     output.rerun(Duration::from_millis(500)).items([item]);

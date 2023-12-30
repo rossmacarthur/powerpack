@@ -25,7 +25,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         .modifier(Modifier::new(Key::Option).arg("/path/to/modified.jpg"))
         .modifier(Modifier::new(Key::Control).icon(Icon::with_image("/path/to/file.png")))
         .modifier(Modifier::new(Key::Shift).valid(false))
-        .quicklook_url("https://example.com");
+        .quicklook_url("https://example.com")
+        .action(value!({
+            "text": ["one", "two", "three"],
+            "url": "https://www.alfredapp.com",
+            "file": "~/Desktop",
+            "auto": "~/Pictures"
+        }));
 
     // Output the item to Alfred!
     Output::new()
