@@ -29,3 +29,6 @@ powerpack = { path = "../.." }
 [[bin]]
 name = "powerpack"
 path = "src/main.rs"
+
+[profile.release]
+strip = true

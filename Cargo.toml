@@ -26,3 +26,6 @@ goldie = "0.2.0"
 default = ["env"]
 detach = ["powerpack-detach"]
 env = ["powerpack-env"]
+
+[profile.release]
+strip = true
