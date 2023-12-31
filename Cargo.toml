@@ -5,7 +5,7 @@ members = ["crates/*", "examples/*"]
 name = "powerpack"
 version = "0.4.2"
 authors = ["Ross MacArthur <ross@macarthur.io>"]
-edition = "2018"
+edition = "2021"
 description = "⚡ Supercharge your Alfred workflows by building them in Rust!"
 readme = "README.md"
 repository = "https://github.com/rossmacarthur/powerpack"
@@ -24,8 +24,8 @@ goldie = "0.2.0"
 
 [features]
 default = ["env"]
-detach = ["powerpack-detach"]
-env = ["powerpack-env"]
+detach = ["dep:powerpack-detach"]
+env = ["dep:powerpack-env"]
 
 [profile.release]
 strip = true
