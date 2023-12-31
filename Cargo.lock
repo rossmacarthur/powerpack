@@ -392,7 +392,7 @@ checksum = "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391"
 
 [[package]]
 name = "powerpack"
-version = "0.4.2"
+version = "0.5.0"
 dependencies = [
  "goldie",
  "powerpack-detach",
@@ -403,7 +403,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack-cli"
-version = "0.4.2"
+version = "0.5.0"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -420,7 +420,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack-detach"
-version = "0.4.2"
+version = "0.5.0"
 dependencies = [
  "libc",
  "log",
@@ -428,7 +428,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack-env"
-version = "0.4.2"
+version = "0.5.0"
 
 [[package]]
 name = "pretty_assertions"

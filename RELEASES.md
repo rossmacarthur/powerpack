@@ -2,7 +2,7 @@
 
 ### 0.5.0
 
-*Unreleased*
+*December 31st, 2023*
 
 #### powerpack-cli
 
