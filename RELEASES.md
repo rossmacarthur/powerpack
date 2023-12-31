@@ -1,5 +1,44 @@
 # 📝 Release notes
 
+### 0.5.0
+
+*Unreleased*
+
+#### powerpack-cli
+
+- [Support workspaces with `--package` flag.][32b8bf1b] Previously `powerpack`
+  only worked with the root package of a workspace. You can now have multiple
+  packages in a workspace and use the `--package` flag to specify which package
+  to build, link or package. The `workflow/` directory containing the package
+  information must be in the same directory as the manifest file for the
+  particular package.
+
+#### powerpack
+
+- [Support `skipknowledge` option.][b4f0f8cf] Adds [`Output::skip_knowledge`]
+  which allows you to set `uid` and preserve the item order while allowing Alfred
+  to retain knowledge of your items, like your current selection during a re-run.
+
+- [Support Universal Actions.][887ae3ac] Adds [`Item::action`] which allows you
+  to set the universal action(s) for an item.
+
+- [Support multiple item arguments.][beb28208] Adds [`Item::args`] which allows
+  you to set multiple arguments which will be passed as a JSON array.
+
+- [Support multiple modifier keys.][9e8b210e] Adds [`Modifier::new_multi`] which
+  allows you to specify a combination of keys as the modifier.
+
+[`Item::action`]: https://docs.rs/powerpack/latest/powerpack/struct.Item.html#method.action
+[`Item::args`]: https://docs.rs/powerpack/latest/powerpack/struct.Item.html#method.args
+[`Output::skip_knowledge`]: https://docs.rs/powerpack/latest/powerpack/struct.Output.html#method.skip_knowledge
+[`Modifier::new_multi`]: https://docs.rs/powerpack/latest/powerpack/struct.Modifier.html#method.new_multi
+[b4f0f8cf]: https://github.com/rossmacarthur/powerpack/commit/b4f0f8cffc2f1bbbe2445892054904b39ffaa304
+[887ae3ac]: https://github.com/rossmacarthur/powerpack/commit/887ae3acbef494a164e181996f80d6100c5f3a7f
+[beb28208]: https://github.com/rossmacarthur/powerpack/commit/beb2820874c5405f0a1835b6db757deeb12f1d0e
+[9e8b210e]: https://github.com/rossmacarthur/powerpack/commit/9e8b210e11a0b6c68bbb15be4e1a23504fbfe1f9
+[32b8bf1b]: https://github.com/rossmacarthur/powerpack/commit/32b8bf1bd7126cf615c72477b2e66efbcf7c772a
+
+---
 ### 0.4.2
 
 *September 20th, 2022*
@@ -23,6 +62,7 @@ Thanks [@knutwalker](https://github.com/knutwalker) for these fixes!
   `powerpack::env` when the `env` feature is enabled in `powerpack`. This
   feature is enabled by default.
 
+---
 ### 0.4.1
 
 *March 20th, 2022*
@@ -33,6 +73,7 @@ Thanks [@knutwalker](https://github.com/knutwalker) for these fixes!
 
 [38943ba]: https://github.com/rossmacarthur/powerpack/commit/38943ba0f44b59052b37d1ae1815f9baf31ab068
 
+---
 ### 0.4.0
 
 *March 19th, 2022*
@@ -70,6 +111,7 @@ Thanks [@knutwalker](https://github.com/knutwalker) for these fixes!
 
 [b1d156d]: https://github.com/rossmacarthur/powerpack/commit/b1d156dda02f10c8bc787e6c20c62799385f4924
 
+---
 ### 0.3.1
 
 *February 10th, 2022*
@@ -81,6 +123,7 @@ Thanks [@knutwalker](https://github.com/knutwalker) for these fixes!
 
 [bfb3492]: https://github.com/rossmacarthur/powerpack/commit/bfb34921503fee1661ab0f0f97c22cb8e4f1907c
 
+---
 ### 0.3.0
 
 *February 6th, 2022*
@@ -104,6 +147,7 @@ Thanks [@knutwalker](https://github.com/knutwalker) for these fixes!
 [06dc187]: https://github.com/rossmacarthur/powerpack/commit/06dc18778e33dda0c5a046bcd1651f1bfefeb929
 [49eb415]: https://github.com/rossmacarthur/powerpack/commit/49eb4159c1fcce3ceba4059da2345024c2ab66ef
 
+---
 ### 0.2.2
 
 *January 18th, 2022*
@@ -115,6 +159,7 @@ Thanks [@knutwalker](https://github.com/knutwalker) for these fixes!
 
 [#5]: https://github.com/rossmacarthur/powerpack/pull/5
 
+---
 ### 0.2.1
 
 *September 4th, 2021*
@@ -125,6 +170,7 @@ Thanks [@knutwalker](https://github.com/knutwalker) for these fixes!
 
 [852b884]: https://github.com/rossmacarthur/powerpack/commit/852b884f7a51d3f7746587bd4c80b31d74c6b3bb
 
+---
 ### 0.2.0
 
 *July 5th, 2021*
@@ -150,6 +196,7 @@ Thanks [@knutwalker](https://github.com/knutwalker) for these fixes!
 [a9735d2]: https://github.com/rossmacarthur/powerpack/commit/a9735d231f76eb5a01a3922949a34a87e792bfc2
 [de5a794]: https://github.com/rossmacarthur/powerpack/commit/de5a7945765b5405bf9f5aa4299259d8c4d6a429
 
+---
 ### 0.1.2
 
 *May 15th, 2021*
@@ -168,6 +215,7 @@ Thanks [@knutwalker](https://github.com/knutwalker) for these fixes!
 
 [b693208]: https://github.com/rossmacarthur/powerpack/commit/b693208e4f380d283287da0226b2b8a582730490
 
+---
 ### 0.1.1
 
 *April 1st, 2021*
@@ -182,6 +230,7 @@ Thanks [@knutwalker](https://github.com/knutwalker) for these fixes!
 [70394b3]: https://github.com/rossmacarthur/powerpack/commit/70394b33f0f2773d1aba2127a389eb20590a24d5
 [efcd708]: https://github.com/rossmacarthur/powerpack/commit/efcd70843d4768be6c35bcdbcc2c11b6cbce7ea0
 
+---
 ### 0.1.0
 
 *March 31st, 2021*
