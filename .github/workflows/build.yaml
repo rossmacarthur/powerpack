@@ -6,6 +6,11 @@ env:
   CRATE: powerpack
 
 jobs:
+
+  # ---------------------------------------------------------------------------
+  # Build
+  # ---------------------------------------------------------------------------
+
   build:
     runs-on: ubuntu-latest
 
@@ -17,13 +22,12 @@ jobs:
       RUSTFLAGS: --deny warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
-    - name: Setup Rust
-      run: |
-        rustup set profile default
-        rustup toolchain install ${{ matrix.toolchain }}
-        rustup override set ${{ matrix.toolchain }}
+    - uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ matrix.toolchain }}
+        components: clippy, rustfmt
 
     - name: Rustfmt
       run: cargo fmt -- --check
@@ -35,18 +39,22 @@ jobs:
     - name: Test
       run: cargo test --workspace
 
-  check-version:
+  # ---------------------------------------------------------------------------
+  # Check version against tag
+  # ---------------------------------------------------------------------------
+
+  prepare:
     needs: build
     if: startsWith(github.ref, 'refs/tags/')
 
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Calculate version from tag
         id: version
-        run: echo "::set-output name=value::${GITHUB_REF#refs/tags/}"
+        run: echo "value=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Check tag against package versions
         run: |
@@ -55,26 +63,33 @@ jobs:
           grep '^version = "${{ steps.version.outputs.value }}"$' crates/detach/Cargo.toml
           grep '^version = "${{ steps.version.outputs.value }}"$' crates/env/Cargo.toml
 
+  # ---------------------------------------------------------------------------
+  # Publish
+  # ---------------------------------------------------------------------------
+
   publish:
-    needs: check-version
+    needs: prepare
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Setup Rust
-      run: |
-        rustup set profile minimal
-        rustup toolchain install stable
-        rustup override set stable
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
 
     - name: Publish
       env:
         CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
-      run: bash ci/publish-workspace.sh
+      run: |
+        cargo publish --package powerpack-detach
+        cargo publish --package powerpack-env
+        cargo publish --package powerpack
+        cargo publish --package powerpack-cli
+
+  # ---------------------------------------------------------------------------
+  # Release
+  # ---------------------------------------------------------------------------
 
   release:
-    needs: check-version
+    needs: prepare
     runs-on: macos-latest
 
     strategy:
@@ -82,24 +97,18 @@ jobs:
         target: [x86_64-apple-darwin, aarch64-apple-darwin]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Setup Rust
-        run: |
-          rustup set profile minimal
-          rustup toolchain install stable
-          rustup override set stable
-          rustup target add ${{ matrix.target }}
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          target: ${{ matrix.target }}
 
       - name: Calculate version from tag
         id: version
-        run: echo "::set-output name=value::${GITHUB_REF#refs/tags/}"
+        run: echo "value=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Build
         run: cargo build --package powerpack-cli --locked --release --target ${{ matrix.target }}
-
-      - name: Strip binary
-        run: strip target/${{ matrix.target }}/release/$CRATE
 
       - name: Archive
         id: archive
@@ -113,7 +122,7 @@ jobs:
           tar cfz "../$archive" -- *
           cd ..
           rm -r release
-          echo "::set-output name=path::$archive"
+          echo "path=$archive" >> $GITHUB_OUTPUT
 
       - uses: softprops/action-gh-release@v1
         env:
