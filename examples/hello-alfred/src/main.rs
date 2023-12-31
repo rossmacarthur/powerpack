@@ -23,7 +23,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         .large_type_text("this text will be displayed with ⌘L")
         .modifier(Modifier::new(Key::Command).subtitle("⌘ changes the subtitle"))
         .modifier(Modifier::new(Key::Option).arg("/path/to/modified.jpg"))
-        .modifier(Modifier::new(Key::Control).icon(Icon::with_image("/path/to/file.png")))
+        .modifier(
+            Modifier::new_multi([Key::Control, Key::Shift])
+                .icon(Icon::with_image("/path/to/file.png")),
+        )
         .modifier(Modifier::new(Key::Shift).valid(false))
         .quicklook_url("https://example.com")
         .action(value!({

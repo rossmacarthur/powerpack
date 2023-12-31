@@ -58,7 +58,6 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
 
     // Add workflow/<binary> to the gitignore file (if it exists)
     if let Ok(mut file) = fs::OpenOptions::new()
-        .write(true)
         .append(true)
         .open(manifest_dir.join(".gitignore"))
     {

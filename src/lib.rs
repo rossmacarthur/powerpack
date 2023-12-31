@@ -85,6 +85,15 @@ pub enum Key {
     Function,
 }
 
+/// A keyboard modifier combination.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[serde(untagged)]
+enum Keys {
+    One(Key),
+    #[serde(serialize_with = "serialize_many_keys")]
+    Many(Vec<Key>),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 enum IconInner {
     /// Load an image from a path.
@@ -146,7 +155,7 @@ struct Data {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct Modifier {
     /// The modifier key.
-    key: Key,
+    key: Keys,
 
     /// The modifier data.
     data: Data,
@@ -192,7 +201,7 @@ pub struct Item {
 
     /// Control how the modifier keys react.
     #[serde(rename = "mods", skip_serializing_if = "HashMap::is_empty")]
-    modifiers: HashMap<Key, Data>,
+    modifiers: HashMap<Keys, Data>,
 
     /// Defines the copied or large type text for this item.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -227,6 +236,26 @@ pub struct Output {
 ////////////////////////////////////////////////////////////////////////////////
 // Implementations
 ////////////////////////////////////////////////////////////////////////////////
+
+fn serialize_many_keys<S>(duration: &[Key], s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let mut out = String::with_capacity(5 * duration.len());
+    for (i, key) in duration.iter().enumerate() {
+        if i != 0 {
+            out.push('+');
+        }
+        out.push_str(match key {
+            Key::Command => "cmd",
+            Key::Option => "alt",
+            Key::Control => "ctrl",
+            Key::Shift => "shift",
+            Key::Function => "fn",
+        });
+    }
+    s.serialize_str(&out)
+}
 
 impl Serialize for Icon {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
@@ -322,7 +351,23 @@ impl Modifier {
     #[must_use]
     pub fn new(key: Key) -> Self {
         Self {
-            key,
+            key: Keys::One(key),
+            data: Data::default(),
+        }
+    }
+
+    /// Create a new modifier with multiple keys.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use powerpack::{Key, Modifier};
+    /// let m = Modifier::new_multi([Key::Command, Key::Option]);
+    /// ```
+    #[must_use]
+    pub fn new_multi(keys: impl IntoIterator<Item = Key>) -> Self {
+        Self {
+            key: Keys::Many(keys.into_iter().collect()),
             data: Data::default(),
         }
     }

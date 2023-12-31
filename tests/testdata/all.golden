@@ -15,19 +15,19 @@
       "autocomplete": "to this",
       "type": "file:skipcheck",
       "mods": {
-        "cmd": {
-          "subtitle": "⌘ changes the subtitle"
-        },
         "alt": {
           "arg": "/path/to/modified.jpg"
         },
-        "ctrl": {
+        "ctrl+shift": {
           "icon": {
             "path": "/path/to/file.png"
           }
         },
         "shift": {
           "valid": false
+        },
+        "cmd": {
+          "subtitle": "⌘ changes the subtitle"
         }
       },
       "text": {
