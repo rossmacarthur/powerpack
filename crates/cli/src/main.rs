@@ -5,17 +5,19 @@ use std::env;
 use std::ffi::OsString;
 use std::fmt;
 use std::fs;
+use std::io;
 use std::io::prelude::*;
+use std::io::IsTerminal;
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
-use clap::{AppSettings, ColorChoice, Parser};
+use clap::{ColorChoice, Parser};
 use peter::Stylize;
 use toml_edit as toml;
 
 fn print(header: &str, message: impl AsRef<str>) {
-    if atty::is(atty::Stream::Stdout) {
+    if io::stdout().is_terminal() {
         println!("{:>12} {}", header.bold().green(), message.as_ref());
     } else {
         println!("{:>12} {}", header, message.as_ref());
@@ -23,7 +25,7 @@ fn print(header: &str, message: impl AsRef<str>) {
 }
 
 fn print_warning(header: &str, message: impl AsRef<str>) {
-    if atty::is(atty::Stream::Stdout) {
+    if io::stdout().is_terminal() {
         eprintln!("{:>12} {}", header.bold().yellow(), message.as_ref());
     } else {
         eprintln!("{:>12} {}", header, message.as_ref());
@@ -279,9 +281,8 @@ enum Command {
     author,
     version,
     color = ColorChoice::Never,
-    setting = AppSettings::DeriveDisplayOrder,
-    setting = AppSettings::DisableHelpSubcommand,
-    setting = AppSettings::SubcommandRequiredElseHelp,
+    disable_help_subcommand(true),
+    subcommand_required(true),
 )]
 struct Opt {
     #[clap(subcommand)]

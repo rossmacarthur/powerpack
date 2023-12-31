@@ -16,11 +16,11 @@ categories = ["command-line-utilities"]
 [dependencies]
 powerpack-detach = { version = "0.4.2", path = "crates/detach", optional = true }
 powerpack-env = { version = "0.4.2", path = "crates/env", optional = true }
-serde = { version = "1.0.136", features = ["derive"] }
-serde_json = "1.0.78"
+serde = { version = "1.0.193", features = ["derive"] }
+serde_json = "1.0.108"
 
 [dev-dependencies]
-goldie = "0.2.0"
+goldie = "0.4.3"
 
 [features]
 default = ["env"]

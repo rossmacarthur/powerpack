@@ -11,5 +11,5 @@ keywords = ["alfred", "workflow"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-libc = "0.2.117"
-log = { version = "0.4.14", features = ["std"] }
+libc = "0.2.151"
+log = { version = "0.4.20", features = ["std"] }
