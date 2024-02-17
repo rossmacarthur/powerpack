@@ -81,7 +81,9 @@ jobs:
       run: |
         cargo publish --package powerpack-detach
         cargo publish --package powerpack-env
-        cargo publish --package powerpack
+        mv src/main.compile_error.rs src/main.rs
+        cargo publish --package powerpack --no-verify --allow-dirty
+        mv src/main.rs src/main.compile_error.rs
         cargo publish --package powerpack-cli
 
   # ---------------------------------------------------------------------------
