@@ -12,6 +12,7 @@ categories = ["command-line-utilities"]
 
 [workspace.dependencies]
 powerpack = { version = "0.5.0", path = "." }
+powerpack-cache = { version = "0.5.0", path = "crates/cache" }
 powerpack-detach = { version = "0.5.0", path = "crates/detach" }
 powerpack-env = { version = "0.5.0", path = "crates/env" }
 
@@ -30,6 +31,7 @@ keywords.workspace = true
 categories.workspace = true
 
 [dependencies]
+powerpack-cache = { workspace = true, optional = true }
 powerpack-detach = { workspace = true, optional = true }
 powerpack-env = { workspace = true, optional = true }
 serde = { version = "1.0.193", features = ["derive"] }
@@ -40,6 +42,7 @@ goldie = "0.4.3"
 
 [features]
 default = ["env"]
+cache = ["dep:powerpack-cache"]
 detach = ["dep:powerpack-detach"]
 env = ["dep:powerpack-env"]
 

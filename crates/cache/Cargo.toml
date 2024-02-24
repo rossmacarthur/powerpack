@@ -1,0 +1,23 @@
+[package]
+name = "powerpack-cache"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+description = "⚡ Cache management for your Alfred workflow"
+readme = "README.md"
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+anyhow = "1.0.56"
+chrono = "0.4.19"
+fmutex = "0.1.0"
+home = "0.5.3"
+log = { version = "0.4.16", features = ["std"] }
+powerpack-detach.workspace = true
+powerpack-env.workspace = true
+serde = { version = "1.0.136", features = ["derive"] }
+serde_json = "1.0.79"
+thiserror = "1.0.57"

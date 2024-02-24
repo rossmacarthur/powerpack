@@ -41,6 +41,9 @@ use serde::{Serialize, Serializer};
 pub use serde_json::json as value;
 pub use serde_json::Value;
 
+#[cfg(feature = "cache")]
+pub use powerpack_cache as cache;
+
 #[cfg(feature = "detach")]
 pub use powerpack_detach as detach;
 
