@@ -1,21 +1,37 @@
 [workspace]
 members = ["crates/*", "examples/*"]
 
-[package]
-name = "powerpack"
+[workspace.package]
 version = "0.5.0"
 authors = ["Ross MacArthur <ross@macarthur.io>"]
 edition = "2021"
-description = "⚡ Supercharge your Alfred workflows by building them in Rust!"
-readme = "README.md"
 repository = "https://github.com/rossmacarthur/powerpack"
 license = "MIT OR Apache-2.0"
 keywords = ["alfred", "workflow"]
 categories = ["command-line-utilities"]
 
+[workspace.dependencies]
+powerpack = { version = "0.5.0", path = "." }
+powerpack-detach = { version = "0.5.0", path = "crates/detach" }
+powerpack-env = { version = "0.5.0", path = "crates/env" }
+
+###############################################################################
+
+[package]
+name = "powerpack"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+description = "⚡ Supercharge your Alfred workflows by building them in Rust!"
+readme = "README.md"
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
 [dependencies]
-powerpack-detach = { version = "0.5.0", path = "crates/detach", optional = true }
-powerpack-env = { version = "0.5.0", path = "crates/env", optional = true }
+powerpack-detach = { workspace = true, optional = true }
+powerpack-env = { workspace = true, optional = true }
 serde = { version = "1.0.193", features = ["derive"] }
 serde_json = "1.0.108"
 

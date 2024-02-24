@@ -1,14 +1,14 @@
 [package]
 name = "powerpack-detach"
-version = "0.5.0"
-authors = ["Ross MacArthur <ross@macarthur.io>"]
-edition = "2021"
-description = "⚡ Detach a background process from your Alfred workflow."
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+description = "⚡ Detach a background process from your Alfred workflow"
 readme = "README.md"
-repository = "https://github.com/rossmacarthur/powerpack"
-license = "MIT OR Apache-2.0"
-keywords = ["alfred", "workflow"]
-categories = ["command-line-utilities"]
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
 
 [dependencies]
 libc = "0.2.151"
