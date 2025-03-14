@@ -85,8 +85,7 @@ steps:
   - uses: actions/checkout@v2
   - uses: extractions/setup-crate@v1
     with:
-      owner: rossmacarthur
-      name: powerpack
+      repo: rossmacarthur/powerpack
   - run: powerpack package
   # produces an artifact at `target/workflow/{name}.alfredworkflow`
 ```
