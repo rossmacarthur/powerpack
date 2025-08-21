@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use powerpack::{value, Icon, Item, Key, Kind, Modifier, Output};
+use powerpack::{Icon, Item, Key, Kind, Modifier, Output, value};
 
 #[test]
 fn smoke() {

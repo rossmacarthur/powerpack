@@ -346,10 +346,10 @@ impl Cache {
         match fs::read(&path) {
             Ok(data) => {
                 let data = CacheDataHolder::build(&data, checksum, ttl);
-                if let Some(update_cache) = update_cache {
-                    if data.should_update(policy) {
-                        detach::spawn(update_cache)?;
-                    }
+                if let Some(update_cache) = update_cache
+                    && data.should_update(policy)
+                {
+                    detach::spawn(update_cache)?;
                 }
                 data.into_result(policy)
             }

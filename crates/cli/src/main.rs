@@ -6,8 +6,8 @@ use std::ffi::OsString;
 use std::fmt;
 use std::fs;
 use std::io;
-use std::io::prelude::*;
 use std::io::IsTerminal;
+use std::io::prelude::*;
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 

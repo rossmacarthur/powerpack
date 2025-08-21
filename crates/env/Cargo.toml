@@ -3,6 +3,7 @@ name = "powerpack-env"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 description = "⚡ Useful environment variables in Alfred workflows"
 readme = "README.md"
 repository.workspace = true

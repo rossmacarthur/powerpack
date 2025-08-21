@@ -3,6 +3,7 @@ name = "powerpack-cli"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 description = "⚡ Supercharge your Alfred workflows by building them in Rust!"
 readme = "README.md"
 repository.workspace = true

@@ -3,7 +3,7 @@ use std::fmt::Write as _;
 use std::io;
 use std::time::Duration;
 
-use flagset::{flags, FlagSet};
+use flagset::{FlagSet, flags};
 use serde_json as json;
 use thiserror::Error;
 

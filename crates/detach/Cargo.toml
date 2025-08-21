@@ -3,6 +3,7 @@ name = "powerpack-detach"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 description = "⚡ Detach a background process from your Alfred workflow"
 readme = "README.md"
 repository.workspace = true

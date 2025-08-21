@@ -38,8 +38,8 @@ use std::time::Duration;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 
-pub use serde_json::json as value;
 pub use serde_json::Value;
+pub use serde_json::json as value;
 
 #[cfg(feature = "env")]
 pub use powerpack_env as env;

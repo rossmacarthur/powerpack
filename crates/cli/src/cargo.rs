@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use std::process;
 use std::str::FromStr;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 pub use cargo_metadata as metadata;
 use toml_edit as toml;
 

@@ -3,6 +3,7 @@ name = "powerpack-logger"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 description = "⚡ A simple logger for Alfred workflows"
 readme = "README.md"
 repository.workspace = true

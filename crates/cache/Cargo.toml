@@ -3,6 +3,7 @@ name = "powerpack-cache"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 description = "⚡ Cache management for your Alfred workflow"
 readme = "README.md"
 repository.workspace = true
