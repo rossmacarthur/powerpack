@@ -263,15 +263,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fmutex"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01e84c17070603126a7b0cd07d0ecc8e8cca4d15b67934ac2740286a84f3086c"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "getrandom"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -476,7 +467,6 @@ name = "powerpack-cache"
 version = "0.6.3"
 dependencies = [
  "flagset",
- "fmutex",
  "home",
  "log",
  "powerpack-detach",

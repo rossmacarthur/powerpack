@@ -13,7 +13,6 @@ categories.workspace = true
 
 [dependencies]
 flagset.workspace = true
-fmutex.workspace = true
 home.workspace = true
 log.workspace = true
 serde.workspace = true

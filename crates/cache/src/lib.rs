@@ -62,6 +62,7 @@ mod query;
 
 use std::error::Error as StdError;
 use std::fs;
+use std::fs::TryLockError;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::thread;
@@ -395,8 +396,9 @@ where
 {
     fs::create_dir_all(directory)?;
     let tmp = path.with_extension("tmp");
-    match fmutex::try_lock(directory)? {
-        Some(_guard) => {
+
+    match fs::File::open(directory)?.try_lock() {
+        Ok(()) => {
             let data = f().map_err(Into::into)?;
             let file = fs::File::create(&tmp)?;
             let modified = SystemTime::now();
@@ -411,6 +413,7 @@ where
             fs::rename(tmp, path)?;
             Ok(true)
         }
-        None => Ok(false),
+        Err(TryLockError::Error(err)) => Err(err.into()),
+        Err(TryLockError::WouldBlock) => Ok(false),
     }
 }

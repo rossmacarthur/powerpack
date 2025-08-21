@@ -18,7 +18,6 @@ powerpack-detach = { version = "0.6.3", path = "crates/detach" }
 powerpack-env = { version = "0.6.3", path = "crates/env" }
 powerpack-logger = { version = "0.6.3", path = "crates/logger" }
 flagset = { version = "0.4.6", features = ["std"] }
-fmutex = "0.1.0"
 home = "0.5.3"
 jiff = { version = "0.2.0", default-features = false, features = ["std"] }
 libc = "0.2.151"
