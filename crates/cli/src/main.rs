@@ -82,6 +82,26 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
     Ok(())
 }
 
+/// Check the workflow
+fn check(
+    package: Option<&str>,
+    bins: Vec<String>,
+    release: bool,
+    target: Option<&str>,
+) -> Result<()> {
+    let mode = if release {
+        cargo::Mode::Release
+    } else {
+        cargo::Mode::Debug
+    };
+    cargo::check(mode, package, &bins, target)?;
+    print_warning(
+        "Warning",
+        "using `check` does not update the workflow binary",
+    );
+    Ok(())
+}
+
 /// Build the workflow.
 fn build(
     package: Option<&str>,
@@ -229,6 +249,25 @@ enum Command {
         name: Option<OsString>,
     },
 
+    /// Check the workflow.
+    Check {
+        /// Package to build.
+        #[clap(long, short, value_name = "SPEC")]
+        package: Option<String>,
+
+        /// Check only the specified binary.
+        #[clap(long, value_name = "NAME")]
+        bin: Vec<String>,
+
+        /// Check artifacts in release mode, with optimizations.
+        #[clap(long)]
+        release: bool,
+
+        /// Check for the target triple.
+        #[clap(long, value_name = "TRIPLE")]
+        target: Option<String>,
+    },
+
     /// Build the workflow.
     Build {
         /// Package to build.
@@ -299,6 +338,14 @@ fn main() -> anyhow::Result<()> {
         Command::Init { path, name } => {
             let path = path.as_deref().unwrap_or_else(|| Path::new("."));
             init(path, name)?;
+        }
+        Command::Check {
+            package,
+            bin,
+            release,
+            target,
+        } => {
+            check(package.as_deref(), bin, release, target.as_deref())?;
         }
         Command::Build {
             package,

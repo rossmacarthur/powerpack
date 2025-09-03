@@ -71,6 +71,16 @@ where
     cmd.run()
 }
 
+/// Run a `cargo check` command.
+pub fn check(
+    mode: Mode,
+    package: Option<&str>,
+    bins: &[String],
+    target: Option<&str>,
+) -> Result<()> {
+    check_or_build("check", mode, package, bins, target)
+}
+
 /// Run a `cargo build` command.
 pub fn build(
     mode: Mode,
@@ -78,7 +88,17 @@ pub fn build(
     bins: &[String],
     target: Option<&str>,
 ) -> Result<()> {
-    let mut cmd = Cargo::new("build");
+    check_or_build("build", mode, package, bins, target)
+}
+
+fn check_or_build(
+    cmd: &str,
+    mode: Mode,
+    package: Option<&str>,
+    bins: &[String],
+    target: Option<&str>,
+) -> Result<()> {
+    let mut cmd = Cargo::new(cmd);
     if let Some(package) = package {
         cmd.arg("--package").arg(package);
     }
