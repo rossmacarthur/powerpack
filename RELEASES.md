@@ -1,5 +1,24 @@
 # 📝 Release notes
 
+### 0.7.0
+
+*September 3rd, 2025*
+
+#### powerpack-cli
+
+- [Add `check` subcommand][a8b33f98]. Works exactly like the `build` subcommand
+  except it does not copy the binary across to the workflow.
+
+[a8b33f98]: https://github.com/rossmacarthur/powerpack/commit/a8b33f98e58433fa5d8f14918ee5309e0f84da27
+
+#### powerpack
+
+- [Upgrade to Rust 1.89 and edition 2024][cb6ceacf]. This change raises the
+  minimum supported Rust version to 1.89. This removed some unnecessary
+  dependencies.
+
+[cb6ceacf]: https://github.com/rossmacarthur/powerpack/commit/cb6ceacf1703551678002451f485f3b12cc2b10b
+
 ### 0.6.3
 
 *February 23rd, 2025*

@@ -2,7 +2,7 @@
 members = ["crates/*", "examples/*"]
 
 [workspace.package]
-version = "0.6.3"
+version = "0.7.0"
 authors = ["Ross MacArthur <ross@macarthur.io>"]
 edition = "2024"
 rust-version = "1.89"
@@ -12,11 +12,11 @@ keywords = ["alfred", "workflow"]
 categories = ["command-line-utilities"]
 
 [workspace.dependencies]
-powerpack = { version = "0.6.3", path = "." }
-powerpack-cache = { version = "0.6.3", path = "crates/cache" }
-powerpack-detach = { version = "0.6.3", path = "crates/detach" }
-powerpack-env = { version = "0.6.3", path = "crates/env" }
-powerpack-logger = { version = "0.6.3", path = "crates/logger" }
+powerpack = { version = "0.7.0", path = "." }
+powerpack-cache = { version = "0.7.0", path = "crates/cache" }
+powerpack-detach = { version = "0.7.0", path = "crates/detach" }
+powerpack-env = { version = "0.7.0", path = "crates/env" }
+powerpack-logger = { version = "0.7.0", path = "crates/logger" }
 flagset = { version = "0.4.6", features = ["std"] }
 home = "0.5.3"
 jiff = { version = "0.2.0", default-features = false, features = ["std"] }
