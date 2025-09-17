@@ -117,9 +117,10 @@ enum IconInner {
 pub struct Icon(IconInner);
 
 /// The type of item.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Copy, Clone, Default, PartialEq, Eq, Hash, Serialize)]
 pub enum Kind {
     #[serde(rename = "default")]
+    #[default]
     Default,
     #[serde(rename = "file")]
     File,
@@ -380,12 +381,6 @@ impl Icon {
     /// [uti]: https://en.wikipedia.org/wiki/Uniform_Type_Identifier
     pub fn with_type(uti: impl Into<String>) -> Self {
         Self(IconInner::FileType(uti.into()))
-    }
-}
-
-impl Default for Kind {
-    fn default() -> Self {
-        Self::Default
     }
 }
 
