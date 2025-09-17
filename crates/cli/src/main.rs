@@ -207,8 +207,11 @@ fn build_package(package: Option<&str>) -> Result<()> {
     let dist_dir = metadata.target_dir.join("workflow");
     let mut package_name = metadata.package_name;
 
-    // Just a hack because I tend to suffix my workflows with this.
-    if let Some(new) = package_name.strip_suffix("-alfred-workflow") {
+    // Just a hack because I tend to suffix my workflows with one of these.
+    if let Some(new) = package_name
+        .strip_suffix("-alfred-workflow")
+        .or_else(|| package_name.strip_suffix("-alfredworkflow"))
+    {
         package_name = new.to_owned();
     }
 
