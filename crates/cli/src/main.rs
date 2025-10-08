@@ -66,13 +66,20 @@ fn init(manifest_dir: &Path, name: Option<OsString>) -> Result<()> {
         writeln!(file, "/workflow/{package_name}")?;
     }
 
-    // Add dependencies to Cargo manifest.
-    {
+    // Make some tweaks to the cargo manifest
+    let doc = {
         let mut doc = doc;
+
+        let table = &mut doc["package"];
+        table["version"] = toml::value("0.0.0");
+        table["publish"] = toml::value(false);
+
         let table = &mut doc["dependencies"];
         table["powerpack"] = toml::value(env!("CARGO_PKG_VERSION"));
-        cargo::write_manifest(manifest_dir, &doc)?;
-    }
+        doc
+    };
+
+    cargo::write_manifest(manifest_dir, &doc)?;
 
     // Write our custom `main.rs`
     let main = manifest_dir.join("src").join("main.rs");
