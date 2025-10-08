@@ -41,6 +41,9 @@ license.workspace = true
 keywords.workspace = true
 categories.workspace = true
 
+[package.metadata.docs.rs]
+all-features = true
+
 [dependencies]
 serde.workspace = true
 serde_json.workspace = true
