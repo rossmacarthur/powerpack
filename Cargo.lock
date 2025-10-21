@@ -275,16 +275,13 @@ dependencies = [
 
 [[package]]
 name = "goldie"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa70c42797cac60e6182e00f33f629212e02ba80d67e8a976f6168b57568d78e"
+checksum = "68acc88a75803d1de7d2dbda0a2db67e8e70b689fe2c3720494be16e670cd5c9"
 dependencies = [
- "anyhow",
- "once_cell",
  "pretty_assertions",
  "serde",
  "serde_json",
- "upon",
  "yansi",
 ]
 
@@ -699,23 +696,6 @@ name = "unicode-ident"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "11cd88e12b17c6494200a9c1b683a04fcac9573ed74cd1b62aeb2727c5592243"
-
-[[package]]
-name = "unicode-width"
-version = "0.1.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
-
-[[package]]
-name = "upon"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9fe29601d1624f104fa9a35ea71a5f523dd8bd1cfc8c31f8124ad2b829f013c0"
-dependencies = [
- "serde",
- "unicode-ident",
- "unicode-width",
-]
 
 [[package]]
 name = "utf8parse"

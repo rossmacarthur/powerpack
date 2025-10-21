@@ -53,7 +53,7 @@ powerpack-detach = { workspace = true, optional = true }
 powerpack-logger = { workspace = true, optional = true }
 
 [dev-dependencies]
-goldie = "0.5.0"
+goldie = { version = "0.6.0", default-features = false, features = ["color", "json"] }
 
 [features]
 default = ["env"]
