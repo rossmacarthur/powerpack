@@ -255,11 +255,11 @@ struct CacheDataHolder<'a, T> {
 }
 
 impl<'a, T> CacheDataHolder<'a, T> {
-    fn build(data: &'a [u8], checksum: Option<&str>, ttl: Duration) -> Self
+    fn build(buf: &'a [u8], checksum: Option<&str>, ttl: Duration) -> Self
     where
         T: for<'de> Deserialize<'de>,
     {
-        let result: Result<CacheData<T>, _> = json::from_slice(data);
+        let result: Result<CacheData<T>, _> = json::from_slice(buf);
         match &result {
             Ok(d) => {
                 let is_checksum_mismatch = checksum.is_some() && d.checksum != checksum;
@@ -319,7 +319,6 @@ impl Cache {
             ttl,
             initial_poll,
             update_fn,
-            ..
         } = query;
 
         let directory = self.directory.join(key);
@@ -345,14 +344,14 @@ impl Cache {
         });
 
         match fs::read(&path) {
-            Ok(data) => {
-                let data = CacheDataHolder::build(&data, checksum, ttl);
+            Ok(buf) => {
+                let holder = CacheDataHolder::build(&buf, checksum, ttl);
                 if let Some(update_cache) = update_cache
-                    && data.should_update(policy)
+                    && holder.should_update(policy)
                 {
                     detach::spawn(update_cache)?;
                 }
-                data.into_result(policy)
+                holder.into_result(policy)
             }
 
             Err(err) if err.kind() == io::ErrorKind::NotFound => {
@@ -366,9 +365,9 @@ impl Cache {
                     while Instant::now().duration_since(start) < poll_duration {
                         thread::sleep(poll_sleep);
                         match fs::read(&path) {
-                            Ok(data) => {
-                                let data = CacheDataHolder::build(&data, checksum, ttl);
-                                return data.into_result(policy);
+                            Ok(buf) => {
+                                let holder = CacheDataHolder::build(&buf, checksum, ttl);
+                                return holder.into_result(policy);
                             }
                             Err(err) if err.kind() == io::ErrorKind::NotFound => continue,
                             Err(err) => return Err(err.into()),
