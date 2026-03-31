@@ -12,6 +12,11 @@
 //!   - Executes the given function.
 //!   - Exit the process.
 //!
+//! [`spawn_with`] does the same thing but also allows you to pass a payload.
+//! The payload will be returned if the process is the parent or passed to the
+//! given function if it is the child. This allows you to avoid cloning data and
+//! use it in both the parent and the child.
+//!
 //! ### 💡 Note
 //!
 //! Depending on your Alfred workflow settings Alfred might execute your
@@ -21,8 +26,20 @@
 //!
 //! # Examples
 //!
-//! ```no-compile
+//! ```no_compile
 //! powerpack::detach::spawn(|| {
+//!
+//!     // some expensive operation that shouldn't block Alfred
+//!     //
+//!     // e.g. fetch and cache a remote resource
+//!
+//! }).expect("forked child process");
+//! ```
+//!
+//! ```no_compile
+//! let payload = // some unclonable type
+//! # ();
+//! powerpack::detach::spawn_with(payload, |payload| {
 //!
 //!     // some expensive operation that shouldn't block Alfred
 //!     //
@@ -84,13 +101,25 @@ fn panic_hook(info: &panic::PanicInfo<'_>) {
 /// Execute a function in a child process.
 ///
 /// See the [crate] level documentation for more.
+#[inline]
 pub fn spawn<F>(f: F) -> io::Result<()>
 where
     F: FnOnce(),
 {
+    spawn_with((), move |()| f())
+}
+
+/// Execute a function in a child process with a payload.
+///
+/// See the [crate] level documentation for more.
+#[inline]
+pub fn spawn_with<T, F>(payload: T, f: F) -> io::Result<T>
+where
+    F: FnOnce(T),
+{
     match fork()? {
-        Fork::Parent => Ok(()),
-        Fork::Child => match exec_child(f) {
+        Fork::Parent => Ok(payload),
+        Fork::Child => match exec_child(move || f(payload)) {
             Ok(()) => {
                 process::exit(0);
             }
