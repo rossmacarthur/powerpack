@@ -13,15 +13,15 @@ categories.workspace = true
 
 [dependencies]
 anyhow = "1.0.78"
-cargo_metadata = "0.19.1"
+cargo_metadata = "0.23.1"
 casual = "0.2.0"
 clap = { version = "4.4.12", features = ["derive"] }
 home = "0.5.9"
 peter = "0.2.1"
 plist = "1.6.0"
-toml_edit = "0.22.22"
+toml_edit = "0.25.11"
 uuid = { version = "1.6.1", features = ["v4"] }
-zip = { version = "2.2.2", features = ["deflate-zlib", "time"], default-features = false }
+zip = { version = "8.6.0", features = ["deflate", "time"], default-features = false }
 
 [dev-dependencies]
 powerpack.workspace = true

@@ -152,7 +152,7 @@ pub fn metadata(package: Option<&str>) -> Result<Metadata> {
     Ok(Metadata {
         manifest_dir: pkg.manifest_path.parent().unwrap().into(),
         target_dir: target_directory.into(),
-        package_name: pkg.name,
+        package_name: pkg.name.into_inner(),
         binary_names,
     })
 }
