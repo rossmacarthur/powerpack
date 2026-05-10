@@ -495,7 +495,7 @@ checksum = "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391"
 
 [[package]]
 name = "powerpack"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "goldie",
  "powerpack-cache",
@@ -508,7 +508,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack-cache"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "flagset",
  "home",
@@ -522,7 +522,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack-cli"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "anycase",
  "anyhow",
@@ -540,7 +540,7 @@ dependencies = [
 
 [[package]]
 name = "powerpack-detach"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "libc",
  "log",
@@ -548,14 +548,14 @@ dependencies = [
 
 [[package]]
 name = "powerpack-env"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "home",
 ]
 
 [[package]]
 name = "powerpack-logger"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "home",
  "jiff",
