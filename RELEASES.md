@@ -1,5 +1,34 @@
 # 📝 Release notes
 
+### 0.8.0
+
+*Unreleased*
+
+#### powerpack-cli
+
+- [Also specially handle -alfredworkflow suffix][56d8dcda]. When running
+  `powerpack package` it will also strip this suffix from the Cargo package name
+  so that the resultant `.alfredworkflow` file name does duplicate the suffix.
+
+- [Override Cargo manifest version and publish][151928a0]. This changes
+  `powerpack new` and `powerpack init` to set the version in the generated Cargo
+  manifest to `0.0.0` and `publish` to `false.
+
+[56d8dcda]: https://github.com/rossmacarthur/powerpack/commit/56d8dcda64f017b8a6e5329100f9791e492613ac
+[151928a0]: https://github.com/rossmacarthur/powerpack/commit/151928a0d976da6c4f2aa9917a23e3e8bc723f2f
+
+#### powerpack
+
+- [detach: Add `spawn_with` for avoiding cloning data][874ec9ca3].
+
+- [cache: Pass previous cache data to update function][31c6a80a6]. This is a
+  breaking change to the API for the update function. It is now passed the
+  previous cache entry (if it exists) to allow for more flexible update
+  strategies.
+
+[874ec9ca3]: https://github.com/rossmacarthur/powerpack/commit/874ec9ca3b551adbf8267a64f586450dfd08ad7b
+[31c6a80a6]: https://github.com/rossmacarthur/powerpack/commit/31c6a80a6328c6d2e7098cb1f6ef50e2f7f11571
+
 ### 0.7.0
 
 *September 3rd, 2025*
