@@ -12,6 +12,7 @@ keywords.workspace = true
 categories.workspace = true
 
 [dependencies]
+anycase = "0.1.0"
 anyhow = "1.0.78"
 cargo_metadata = "0.23.1"
 casual = "0.2.0"

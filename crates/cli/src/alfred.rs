@@ -34,8 +34,16 @@ macro_rules! dict {
 pub fn build_info_plist(info: &WorkflowInfo) -> plist::Value {
     let uid_a = uuid::Uuid::new_v4().to_string().to_uppercase();
     let uid_b = uuid::Uuid::new_v4().to_string().to_uppercase();
+
+    let name = anycase::to_title(
+        info.name
+            .strip_suffix("-alfred-workflow")
+            .or_else(|| info.name.strip_suffix("-alfredworkflow"))
+            .unwrap_or(&info.name),
+    );
+
     dict! {
-        "name" => info.name,
+        "name" => name,
         "description" => info.description,
         "bundleid" => info.bundle_id,
         "createdby" => info.author,

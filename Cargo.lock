@@ -68,6 +68,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anycase"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bfe40b13c10811de0a5478280c89b454049363b1319047bc3d2f8c2b9d14c803"
+
+[[package]]
 name = "anyhow"
 version = "1.0.102"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -518,6 +524,7 @@ dependencies = [
 name = "powerpack-cli"
 version = "0.7.0"
 dependencies = [
+ "anycase",
  "anyhow",
  "cargo_metadata",
  "casual",
