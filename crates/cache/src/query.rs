@@ -7,6 +7,8 @@ use flagset::{FlagSet, flags};
 use serde_json as json;
 use thiserror::Error;
 
+use crate::{PrevEntry, UpdateFn};
+
 /// Raised when accessing data in the cache.
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -163,7 +165,7 @@ impl QueryPolicy {
 ///
 pub struct Query<'a, T, E = Infallible> {
     pub(crate) key: &'a str,
-    pub(crate) update_fn: Option<Box<dyn FnOnce() -> Result<T, E> + 'a>>,
+    pub(crate) update_fn: Option<UpdateFn<'a, T, E>>,
     pub(crate) policy: Option<FlagSet<QueryPolicy>>,
     pub(crate) checksum: Option<String>,
     pub(crate) ttl: Option<Duration>,
@@ -198,7 +200,7 @@ impl<'a> Query<'a, (), Infallible> {
     #[inline]
     pub fn update_fn<F, T, E>(self, update_fn: F) -> Query<'a, T, E>
     where
-        F: FnOnce() -> Result<T, E> + 'a,
+        F: FnOnce(Option<PrevEntry<T>>) -> Result<T, E> + 'a,
     {
         Query {
             key: self.key,

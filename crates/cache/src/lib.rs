@@ -46,7 +46,7 @@
 //! # use powerpack_cache as cache;
 //! # let mut cache = cache::Builder::new().build();
 //! #
-//! let expensive_fn = || {
+//! let expensive_fn = |_| {
 //!     // perform some expensive operation, like fetching
 //!     // something over the internet
 //! #   Ok::<String, std::convert::Infallible>(String::from(""))
@@ -79,7 +79,10 @@ use powerpack_env as env;
 pub use crate::query::{Query, QueryError, QueryPolicy};
 
 /// The cache file name, the version indicates the format of the data
-const DATA: &str = "v1.json";
+const DATA: &str = "v2.json";
+
+/// The function type for the update function
+pub type UpdateFn<'f, T, E> = Box<dyn FnOnce(Option<PrevEntry<T>>) -> Result<T, E> + 'f>;
 
 /// Raised when constructing a new cache.
 #[derive(Debug, Error)]
@@ -102,7 +105,7 @@ enum UpdateError {
     #[error("serialization error")]
     Serialize(#[from] json::Error),
 
-    /// Raised when an error
+    /// Raised when an error occurs in the update function
     #[error("update fn failed: {0}")]
     UpdateFn(#[from] Box<dyn StdError + Send + Sync + 'static>),
 }
@@ -117,6 +120,8 @@ pub struct Builder {
 }
 
 /// Manage a cache of data on disk.
+///
+/// Created using a [`Builder`].
 #[derive(Debug)]
 pub struct Cache {
     directory: PathBuf,
@@ -125,14 +130,33 @@ pub struct Cache {
     initial_poll: Option<Duration>,
 }
 
-/// The data stored in the cache.
+/// The previous cache entry and metadata.
 ///
-/// Breaking changes need to bump the version in the cache file name.
+/// Passed to the update function to allow more flexible update strategies.
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct PrevEntry<T> {
+    /// The actual cache entry, or an error if it failed to deserialize.
+    pub entry: Result<Entry<T>, json::Error>,
+
+    query_checksum: Option<String>,
+    query_ttl: Duration,
+}
+
+/// The data and metadata stored in the cache.
+///
+// Breaking changes need to bump the version in the cache file name.
 #[derive(Debug, Clone, Deserialize, Serialize)]
-struct CacheData<'a, T> {
-    modified: SystemTime,
-    checksum: Option<&'a str>,
-    data: T,
+#[non_exhaustive]
+pub struct Entry<T> {
+    /// The time the cache was last modified (pre update)
+    pub pre_update_time: SystemTime,
+    /// The time the cache was last modified (post update)
+    pub post_update_time: SystemTime,
+    /// The checksum specified when the data was stored in the cache
+    pub checksum: Option<String>,
+    /// The data stored in the cache
+    pub data: T,
 }
 
 impl Default for Builder {
@@ -247,61 +271,66 @@ impl Builder {
     }
 }
 
-struct CacheDataHolder<'a, T> {
-    result: Result<CacheData<'a, T>, json::Error>,
-    is_bad_data: bool,
-    is_checksum_mismatch: bool,
-    is_expired: bool,
-}
-
-impl<'a, T> CacheDataHolder<'a, T> {
-    fn build(buf: &'a [u8], checksum: Option<&str>, ttl: Duration) -> Self
+impl<T> PrevEntry<T> {
+    fn build(buf: &[u8], query_checksum: Option<String>, query_ttl: Duration) -> Self
     where
         T: for<'de> Deserialize<'de>,
     {
-        let result: Result<CacheData<T>, _> = json::from_slice(buf);
-        match &result {
-            Ok(d) => {
-                let is_checksum_mismatch = checksum.is_some() && d.checksum != checksum;
-                let is_expired = d.modified.elapsed().map_or(true, |d| d > ttl);
-                Self {
-                    result,
-                    is_bad_data: false,
-                    is_checksum_mismatch,
-                    is_expired,
-                }
-            }
-            Err(_) => Self {
-                result,
-                is_bad_data: true,
-                is_checksum_mismatch: false,
-                is_expired: false,
-            },
+        let entry: Result<Entry<T>, _> = json::from_slice(buf);
+        Self {
+            entry,
+            query_checksum,
+            query_ttl,
         }
     }
 
     fn should_update(&self, policy: FlagSet<QueryPolicy>) -> bool {
         policy.contains(QueryPolicy::UpdateAlways)
-            || self.is_bad_data && policy.contains(QueryPolicy::UpdateBadData)
-            || self.is_checksum_mismatch && policy.contains(QueryPolicy::UpdateChecksumMismatch)
-            || self.is_expired && policy.contains(QueryPolicy::UpdateExpired)
+            || self.is_bad_data() && policy.contains(QueryPolicy::UpdateBadData)
+            || self.is_checksum_mismatch() && policy.contains(QueryPolicy::UpdateChecksumMismatch)
+            || self.is_expired() && policy.contains(QueryPolicy::UpdateExpired)
     }
 
     #[rustfmt::skip]
     fn should_return(&self, policy: FlagSet<QueryPolicy>) -> bool {
         policy.contains(QueryPolicy::ReturnAlways) || {
-            (!self.is_bad_data || policy.contains(QueryPolicy::ReturnBadDataErr))
-            && (!self.is_checksum_mismatch || policy.contains(QueryPolicy::ReturnChecksumMismatch))
-            && (!self.is_expired || policy.contains(QueryPolicy::ReturnExpired))
+            (!self.is_bad_data() || policy.contains(QueryPolicy::ReturnBadDataErr))
+            && (!self.is_checksum_mismatch() || policy.contains(QueryPolicy::ReturnChecksumMismatch))
+            && (!self.is_expired() || policy.contains(QueryPolicy::ReturnExpired))
         }
     }
 
-    fn into_result(self, policy: FlagSet<QueryPolicy>) -> Result<T, QueryError> {
+    fn into_data(self, policy: FlagSet<QueryPolicy>) -> Result<T, QueryError> {
         if self.should_return(policy) {
-            Ok(self.result.map(|c| c.data)?)
+            Ok(self.entry.map(|c| c.data)?)
         } else {
             Err(QueryError::Miss)
         }
+    }
+
+    /// Returns true if the cache entry failed to deserialize
+    #[inline]
+    pub fn is_bad_data(&self) -> bool {
+        self.entry.is_err()
+    }
+
+    /// Returns true if the cache entry has a mismatch with the queried checksum
+    #[inline]
+    pub fn is_checksum_mismatch(&self) -> bool {
+        self.entry.as_ref().is_ok_and(|entry| {
+            self.query_checksum.is_some() && entry.checksum.as_ref() != self.query_checksum.as_ref()
+        })
+    }
+
+    /// Returns true if cache entry is expired based on the queried TTL
+    #[inline]
+    pub fn is_expired(&self) -> bool {
+        self.entry.as_ref().is_ok_and(|entry| {
+            entry
+                .post_update_time
+                .elapsed()
+                .map_or(true, |d| d > self.query_ttl)
+        })
     }
 }
 
@@ -324,7 +353,6 @@ impl Cache {
         let directory = self.directory.join(key);
         let path = directory.join(DATA);
 
-        let checksum = checksum.as_deref();
         let policy = policy.unwrap_or(self.query_policy);
         let ttl = ttl.unwrap_or(self.ttl);
         let initial_poll = initial_poll.or(self.initial_poll).map(|d| {
@@ -332,9 +360,10 @@ impl Cache {
             (d, sleep)
         });
 
-        let update_cache = update_fn.map(|f| {
-            || match update(&directory, &path, checksum, f) {
-                Ok(true) => log::info!("cache: updated {key}"),
+        let update_fn = update_fn.map(|f| {
+            let checksum = checksum.clone();
+            |prev_data| match update(&directory, &path, checksum, prev_data, f) {
+                Ok(true) => log::debug!("cache: updated {key}"),
                 Ok(false) => log::debug!("cache: another process updated {key}"),
                 Err(err) => log::error!(
                     "cache: failed to update {key}: {}",
@@ -345,18 +374,19 @@ impl Cache {
 
         match fs::read(&path) {
             Ok(buf) => {
-                let holder = CacheDataHolder::build(&buf, checksum, ttl);
-                if let Some(update_cache) = update_cache
-                    && holder.should_update(policy)
-                {
-                    detach::spawn(update_cache)?;
+                let prev = PrevEntry::build(&buf, checksum, ttl);
+                match update_fn {
+                    Some(update_fn) if prev.should_update(policy) => {
+                        detach::spawn_with(prev, |prev| update_fn(Some(prev)))?
+                    }
+                    _ => prev,
                 }
-                holder.into_result(policy)
+                .into_data(policy)
             }
 
             Err(err) if err.kind() == io::ErrorKind::NotFound => {
-                if let Some(update_cache) = update_cache {
-                    detach::spawn(update_cache)?;
+                if let Some(update_fn) = update_fn {
+                    detach::spawn(|| update_fn(None))?;
                 }
 
                 // wait for the cache to be populated
@@ -366,8 +396,7 @@ impl Cache {
                         thread::sleep(poll_sleep);
                         match fs::read(&path) {
                             Ok(buf) => {
-                                let holder = CacheDataHolder::build(&buf, checksum, ttl);
-                                return holder.into_result(policy);
+                                return PrevEntry::build(&buf, checksum, ttl).into_data(policy);
                             }
                             Err(err) if err.kind() == io::ErrorKind::NotFound => continue,
                             Err(err) => return Err(err.into()),
@@ -383,11 +412,12 @@ impl Cache {
     }
 }
 
-fn update<'a, T, E>(
+fn update<'d, 'f, T, E>(
     directory: &Path,
     path: &Path,
-    checksum: Option<&str>,
-    f: Box<dyn FnOnce() -> Result<T, E> + 'a>,
+    checksum: Option<String>,
+    prev_entry: Option<PrevEntry<T>>,
+    update_fn: UpdateFn<'f, T, E>,
 ) -> Result<bool, UpdateError>
 where
     T: Serialize + for<'de> Deserialize<'de>,
@@ -398,14 +428,16 @@ where
 
     match fs::File::open(directory)?.try_lock() {
         Ok(()) => {
-            let data = f().map_err(Into::into)?;
+            let pre_update_time = SystemTime::now();
+            let data = update_fn(prev_entry).map_err(Into::into)?;
+            let post_update_time = SystemTime::now();
             let file = fs::File::create(&tmp)?;
-            let modified = SystemTime::now();
             json::to_writer(
                 &file,
-                &CacheData {
+                &Entry {
+                    pre_update_time,
+                    post_update_time,
                     checksum,
-                    modified,
                     data,
                 },
             )?;
