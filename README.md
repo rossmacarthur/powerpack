@@ -15,12 +15,8 @@ script filter Alfred workflows in Rust as well as various utilities that make it
 easier to build workflows. It also provides a command line tool to initialize,
 build, and install workflows built using the `powerpack` crate.
 
-Firstly, install the command line tool.
-```sh
-cargo install powerpack-cli
-```
-
-Now create a new project using a similar API as `cargo new` or `cargo init`.
+Firstly, [install](#-installation) the command line tool. Now create a new
+project using a similar API as `cargo new` or `cargo init`.
 ```sh
 powerpack new myworkflow && cd myworkflow
 ```
@@ -46,6 +42,50 @@ powerpack package
 ```
 
 The release will be available at `target/workflow/myworkflow.alfredworkflow`.
+
+## 📦 Installation
+
+### Homebrew
+
+**`powerpack`** can be installed from my personal tap which includes pre-built
+binaries.
+
+```sh
+brew install rossmacarthur/tap/powerpack
+```
+
+### Cargo
+
+**`powerpack`** can be installed from
+[Crates.io](https://crates.io/crates/powerpack-cli) using
+[Cargo](https://doc.rust-lang.org/cargo/), the Rust package manager.
+
+```sh
+cargo install powerpack-cli
+```
+
+In some circumstances this can fail due to the fact that Cargo does not use
+`Cargo.lock` file by default. You can force Cargo to use it using the `--locked`
+option.
+
+```sh
+cargo install powerpack-cli --locked
+```
+
+### Pre-built binaries
+
+Pre-built binaries for macOS (aarch64, x86_64) are provided. These can be
+downloaded directly from the [the releases page].
+
+Alternatively, the following script can be used to automatically detect your
+host system, download the required artifact, and extract the `powerpack` binary
+to the given directory.
+```sh
+curl --proto '=https' -fLsS https://rossmacarthur.github.io/install/crate.sh \
+    | bash -s -- --repo rossmacarthur/powerpack --to ~/.local/bin
+```
+
+[the releases page]: https://github.com/rossmacarthur/powerpack/releases
 
 ## 🤸 Usage
 
